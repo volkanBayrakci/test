@@ -9,20 +9,14 @@ import "bootstrap/dist/css/bootstrap.min.css";
 const SEO = ({ title, description, keywords, schema }) => {
   useEffect(() => {
     document.title = title;
-    // Meta Description
     const metaDesc = document.querySelector('meta[name="description"]');
     if (metaDesc) metaDesc.setAttribute("content", description);
-
-    // Meta Keywords
     if (keywords) {
       let metaKey = document.querySelector('meta[name="keywords"]');
       if (metaKey) metaKey.setAttribute("content", keywords);
     }
-
-    // JSON-LD Schema
     const existingScript = document.getElementById('jsonLdSchema');
     if (existingScript) existingScript.remove();
-
     if (schema) {
       const script = document.createElement('script');
       script.id = 'jsonLdSchema';
@@ -38,13 +32,10 @@ const formatPrice = (val) => {
   if (val === undefined || val === null || val === "" || val === 0 || val === "0") {
     return "Fiyat Sorunuz";
   }
-
   let stringVal = val.toString().replace(",", ".");
   let cleanVal = stringVal.replace(/[^0-9.]/g, "");
   let num = parseFloat(cleanVal);
-
   if (isNaN(num) || num === 0) return "Fiyat Sorunuz";
-
   return new Intl.NumberFormat("tr-TR", {
     maximumFractionDigits: num % 1 !== 0 ? 2 : 0
   }).format(num) + " ₺";
@@ -74,25 +65,15 @@ const ProductCard = ({ product }) => {
   const displayM3H = (product.M3H && product.M3H !== "0" && product.M3H !== 0) ? `${product.M3H} m³/h` : "-";
   const displayStrength = (product.STRENGTH && product.STRENGTH !== "0" && product.STRENGTH !== 0) ? `${product.STRENGTH} Kw` : "-";
 
-  const productSchema = {
-    "@context": "https://schema.org/",
-    "@type": "Product",
-    "name": product.PRODUCT_NAME,
-    "image": product.IMAGE?.startsWith('http') ? product.IMAGE : `https://seninsiten.com/image/${product.IMAGE}`,
-    "description": `${product.PRODUCT_NAME} - ${product.CATEGORY} havalandırma çözümü.`,
-    "brand": { "@type": "Brand", "name": "Duru Fanmarket" },
-    "offers": {
-      "@type": "Offer",
-      "priceCurrency": "TRY",
-      "price": product.PRICE?.toString().replace(",", "."),
-      "availability": "https://schema.org/InStock"
-    }
-  };
+  const hasDiscount = product.DISCOUNT_PRICE && product.DISCOUNT_PRICE !== "0" && product.DISCOUNT_PRICE !== "";
 
   return (
     <article className="h-100" aria-labelledby={`product-title-${product.PRODUCT_NAME.replace(/\s+/g, '-').toLowerCase()}`}>
       <Card className="h-100 border rounded-4 overflow-hidden product-card shadow-sm">
         <div className="bg-white p-4 d-flex align-items-center justify-content-center position-relative" style={{ height: "200px" }}>
+          {hasDiscount && (
+            <Badge bg="primary" className="position-absolute top-0 start-0 m-3 z-3 shadow-sm px-3 py-2 rounded-pill" style={{fontSize: '0.7rem'}}>İNDİRİM</Badge>
+          )}
           {product.IMAGE ? (
             <img src={imageSrc} alt={`${product.PRODUCT_NAME} Havalandırma Fanı`} loading="lazy" style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }}
               onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'block'; }} />
@@ -112,18 +93,24 @@ const ProductCard = ({ product }) => {
             <span>Güç:</span><span className="fw-bold text-dark">{displayStrength}</span>
           </div>
           <footer className="mt-auto">
-            <div className="text-primary text-nowrap d-flex align-items-center" style={{ minHeight: "35px" }}>
-              {formatPrice(product.PRICE) === "Fiyat Sorunuz" ? (
-                <span style={{ fontSize: "0.85rem", fontWeight: "600", color: "#6c757d" }}>
-                  Fiyat Sorunuz
-                </span>
+            <div className="price-area d-flex flex-column" style={{ minHeight: "45px" }}>
+              {hasDiscount ? (
+                <>
+                  <span className="text-muted text-decoration-line-through small" style={{ fontSize: "0.75rem", lineHeight: "1" }}>{formatPrice(product.PRICE)}</span>
+                  <div className="fs-5 fw-bold text-primary">
+                    {formatPrice(product.DISCOUNT_PRICE)}
+                    <small className="text-muted ms-1" style={{ fontSize: "0.7rem", fontWeight: "normal" }}>+KDV</small>
+                  </div>
+                </>
               ) : (
-                <div className="fs-5 fw-bold">
-                  {formatPrice(product.PRICE)}
-                  {product.PRICE && product.PRICE !== "0" && (
-                    <small className="text-muted ms-1" style={{ fontSize: "0.7rem", fontWeight: "normal" }}>
-                      +KDV
-                    </small>
+                <div className="text-primary text-nowrap d-flex align-items-center" style={{ minHeight: "35px" }}>
+                  {formatPrice(product.PRICE) === "Fiyat Sorunuz" ? (
+                    <span style={{ fontSize: "0.85rem", fontWeight: "600", color: "#6c757d" }}>Fiyat Sorunuz</span>
+                  ) : (
+                    <div className="fs-5 fw-bold">
+                      {formatPrice(product.PRICE)}
+                      <small className="text-muted ms-1" style={{ fontSize: "0.7rem", fontWeight: "normal" }}>+KDV</small>
+                    </div>
                   )}
                 </div>
               )}
@@ -132,15 +119,13 @@ const ProductCard = ({ product }) => {
             <Button
               variant="outline-primary"
               className="w-100 mt-2 py-2 fw-bold rounded-3"
-              href={`https://wa.me/905541591203?text=${encodeURIComponent(`Merhaba, ${product.PRODUCT_NAME}, ürünü hakkında bilgi alabilir miyim?`)}`}
+              href={`https://wa.me/905541591203?text=${encodeURIComponent(`Merhaba, ${product.PRODUCT_NAME} ${hasDiscount ? `(İndirimli Fiyat: ${formatPrice(product.DISCOUNT_PRICE)})` : ''} ürünü hakkında bilgi alabilir miyim?`)}`}
               target="_blank"
               aria-label={`${product.PRODUCT_NAME} için WhatsApp'tan bilgi alın`}
             >
               BİLGİ AL
             </Button>
           </footer>
-
-
         </Card.Body>
       </Card>
     </article>
@@ -195,10 +180,12 @@ const HomePage = ({ data, loading }) => {
   const categories = useMemo(() => [...new Set(data.map(i => i.CATEGORY))], [data]);
   const featured = useMemo(() => [...data].sort(() => 0.5 - Math.random()).slice(0, 12), [data]);
   const recentlyAdded = useMemo(() => [...data].reverse().slice(0, 12), [data]);
+  const discountProducts = useMemo(() => data.filter(p => p.DISCOUNT_PRICE && p.DISCOUNT_PRICE !== "0" && p.DISCOUNT_PRICE !== "").slice(0, 12), [data]);
 
   const [itemsPerSlide, setItemsPerSlide] = useState(window.innerWidth < 768 ? 1 : 4);
   const carouselRef = useRef(null);
   const newItemsRef = useRef(null);
+  const discountRef = useRef(null);
 
   useEffect(() => {
     document.title = "Duru Fanmarket | Endüstriyel Havalandırma Sistemleri";
@@ -256,6 +243,32 @@ const HomePage = ({ data, loading }) => {
           ))}
         </Carousel>
       </section>
+
+      {/* --- FIRSAT ÜRÜNLERİ BÖLÜMÜ (Yeni eklendi) --- */}
+      {discountProducts.length > 0 && (
+        <section className="my-5 px-3" aria-labelledby="discount-heading">
+          <Container>
+            <div className="d-flex justify-content-between align-items-center mb-4">
+              <h2 id="discount-heading" className="fw-bold border-start border-4 border-primary ps-3 mb-0 fs-3">İndirimli Ürünler</h2>
+              <div className="d-flex gap-2 carousel-nav-btns">
+                <Button variant="white" className="rounded-circle border" onClick={() => discountRef.current.prev()} aria-label="Önceki"><FaChevronLeft size={16} /></Button>
+                <Button variant="white" className="rounded-circle border" onClick={() => discountRef.current.next()} aria-label="Sonraki"><FaChevronRight size={16} /></Button>
+              </div>
+            </div>
+            <Carousel ref={discountRef} indicators={false} controls={false} interval={4500} className="featured-carousel pb-3">
+              {Array.from({ length: Math.ceil(discountProducts.length / itemsPerSlide) }).map((_, slideIndex) => (
+                <Carousel.Item key={slideIndex}>
+                  <Row className="gx-3 gy-3 justify-content-center">
+                    {discountProducts.slice(slideIndex * itemsPerSlide, slideIndex * itemsPerSlide + itemsPerSlide).map((p, i) => (
+                      <Col xs={12} md={6} lg={3} key={i}><ProductCard product={p} /></Col>
+                    ))}
+                  </Row>
+                </Carousel.Item>
+              ))}
+            </Carousel>
+          </Container>
+        </section>
+      )}
 
       <section className="my-5 px-3" aria-labelledby="featured-heading">
         <Container>
@@ -354,14 +367,11 @@ const ProductsPage = ({ data, loading }) => {
   useEffect(() => {
     const displayCat = selectedCategory === "Hepsi" ? "ÜRÜN LİSTESİ" : selectedCategory;
     document.title = `${displayCat} MODELLERİ | Duru Fanmarket`;
-
     if (location.state?.category) {
       setSelectedCategory(location.state.category);
     }
-
     setCurrentPage(1);
     window.scrollTo({ top: 0, behavior: "smooth" });
-
   }, [location.state, selectedCategory]);
 
   const filtered = useMemo(() => {
@@ -398,17 +408,14 @@ const ProductsPage = ({ data, loading }) => {
           </Col>
         </Row>
       </header>
-
       <div className="mb-3 ps-2">
         <span className="text-muted">Toplam <span className="text-primary fw-bold">{filtered.length}</span> ürün listeleniyor</span>
       </div>
-
       <section aria-label="Ürün Listesi">
         <Row className="gy-4">
           {currentItems.map((p, i) => (<Col xs={12} md={6} lg={4} xl={3} key={i}><ProductCard product={p} /></Col>))}
         </Row>
       </section>
-
       {!loading && totalPages > 1 && (
         <nav className="pagination-wrapper mt-5 mb-5" aria-label="Sayfalama">
           <div className="pagi-content d-flex align-items-center gap-3">
@@ -438,10 +445,7 @@ function App() {
 
   if (loading) {
     return (
-      <div style={{ 
-        height: '100vh', display: 'flex', flexDirection: 'column', 
-        alignItems: 'center', justifyContent: 'center', background: '#fff' 
-      }}>
+      <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#fff' }}>
         <FaFan size={80} className="text-primary rotate-fast-alt mb-3" />
         <h2 className="fw-bold"><span className="text-primary">DURU</span>FANMARKET</h2>
         <div className="spinner-border text-primary mt-2" role="status"></div>
@@ -471,14 +475,12 @@ function App() {
             </Container>
           </Navbar>
         </header>
-
         <main className="flex-grow-1">
           <Routes>
             <Route path="/" element={<HomePage data={data} loading={loading} />} />
             <Route path="/urunler" element={<ProductsPage data={data} loading={loading} />} />
           </Routes>
         </main>
-
         <footer className="bg-white border-top pt-5 pb-3">
           <Container>
             <Row className="gy-4 justify-content-lg-between text-center text-md-start">
@@ -488,18 +490,15 @@ function App() {
                   <p className="text-muted small">Endüstriyel havalandırma çözümlerinde güvenilir ortağınız. En kaliteli fan sistemlerini en uygun fiyatlarla sunuyoruz.</p>
                 </section>
               </Col>
-
               <Col lg={4} className="px-lg-5">
                 <section className="d-flex flex-column align-items-center align-items-md-start">
                   <h2 className="fw-bold mb-3 text-uppercase border-bottom border-primary border-2 pb-1 d-inline-block w-auto fs-6">Çalışma Saatleri</h2>
                   <div className="small text-muted mt-2 w-100">
                     <div className="d-flex justify-content-center justify-content-md-start gap-3 mb-2 border-bottom pb-1">
-                      <span className="text-nowrap">Pzt - Cmt:</span>
-                      <strong className="text-dark">09:00 - 19:00</strong>
+                      <span className="text-nowrap">Pzt - Cmt:</span><strong className="text-dark">09:00 - 19:00</strong>
                     </div>
                     <div className="d-flex justify-content-center justify-content-md-start gap-3">
-                      <span className="text-nowrap">Pazar:</span>
-                      <strong className="text-danger">KAPALI</strong>
+                      <span className="text-nowrap">Pazar:</span><strong className="text-danger">KAPALI</strong>
                     </div>
                     <p className="mt-3 x-small italic text-muted text-center text-md-start">
                       <FaClock className="me-1 text-primary" aria-hidden="true" /> Mesai saatleri dışındaki talepleriniz için WhatsApp üzerinden mesaj bırakabilirsiniz.
@@ -507,7 +506,6 @@ function App() {
                   </div>
                 </section>
               </Col>
-
               <Col lg={3}>
                 <section className="d-flex flex-column align-items-center align-items-md-start">
                   <h2 className="fw-bold mb-3 text-uppercase border-bottom border-primary border-2 pb-1 d-inline-block w-auto fs-6">İletişim</h2>
@@ -520,18 +518,14 @@ function App() {
               </Col>
             </Row>
             <hr className="my-4 opacity-50" />
-            <div className="text-center small text-muted">
-              © {new Date().getFullYear()} Duru Fanmarket. Tüm hakları saklıdır.
-            </div>
+            <div className="text-center small text-muted">© {new Date().getFullYear()} Duru Fanmarket. Tüm hakları saklıdır.</div>
           </Container>
         </footer>
-
         <aside className="fixed-contact-buttons">
           <a href="tel:+905XXXXXXXXX" className="contact-btn phone" aria-label="Telefonla Arayın"><FaPhoneAlt size={16} /></a>
           <a href="https://wa.me/905XXXXXXXXX" target="_blank" rel="noopener noreferrer" className="contact-btn whatsapp" aria-label="WhatsApp Destek Hattı"><FaWhatsapp size={20} /></a>
         </aside>
         <button className={`back-to-top-btn ${showBackToTop ? 'show' : ''}`} onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} aria-label="Yukarı Çık"><FaArrowUp size={14} /></button>
-
         <style>{`
           .no-scrollbar::-webkit-scrollbar { display: none; }
           .nav-custom-link { font-weight: 700; color: #333 !important; padding: 8px 20px !important; position: relative; }
@@ -551,7 +545,7 @@ function App() {
           .back-to-top-btn { position: fixed; right: 20px; bottom: 20px; width: 40px; height: 40px; border-radius: 8px; background: white; color: #0d6efd; border: 1px solid #eee; display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; visibility: hidden; transition: 0.3s; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
           .back-to-top-btn.show { opacity: 1; visibility: visible; }
           .product-card { transition: 0.3s; border: 1px solid #eee !important; }
-          .product-card:hover { transform: translateY(-8px);  box-shadow: 0 10px 20px rgba(0,0,0,0.05) !important; }
+          .product-card:hover { transform: translateY(-8px); box-shadow: 0 10px 20px rgba(0,0,0,0.05) !important; }
           .feature-box { transition: 0.3s; }
           .feature-box:hover { transform: translateY(-5px); border-color: #0d6efd !important; }
           @media (min-width: 992px) { .border-end-lg { border-right: 1px solid #dee2e6 !important; } }
