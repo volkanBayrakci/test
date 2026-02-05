@@ -119,7 +119,7 @@ const ProductCard = ({ product }) => {
             <Button
               variant="outline-primary"
               className="w-100 mt-2 py-2 fw-bold rounded-3"
-              href={`https://wa.me/905541591203?text=${encodeURIComponent(`Merhaba, ${product.PRODUCT_NAME} ${hasDiscount ? `(İndirimli Fiyat: ${formatPrice(product.DISCOUNT_PRICE)})` : ''} ürünü hakkında bilgi alabilir miyim?`)}`}
+              href={`https://wa.me/905373934767?text=${encodeURIComponent(`Merhaba, ${product.PRODUCT_NAME} ${hasDiscount ? `(İndirimli Fiyat: ${formatPrice(product.DISCOUNT_PRICE)})` : ''} ürünü hakkında bilgi alabilir miyim?`)}`}
               target="_blank"
               aria-label={`${product.PRODUCT_NAME} için WhatsApp'tan bilgi alın`}
             >
