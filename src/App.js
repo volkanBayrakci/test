@@ -465,11 +465,11 @@ const ContactPage = () => {
                   <FaPhoneAlt className="text-primary mt-1" size={18} />
                   <div>
                     <h6 className="fw-bold mb-0 text-dark" style={{fontSize: '0.9rem'}}>Telefon</h6>
-                    <span className="text-dark small">+999999999999</span>
+                    <span className="text-dark small">05373934767</span>
                   </div>
                 </a>
 
-                <a href="https://wa.me/90000000000000" target="_blank" rel="noreferrer" className="flex-fill d-flex align-items-start gap-3 p-2 text-decoration-none hover-bg-light rounded-3 transition-03 border">
+                <a href="https://wa.me/905373934767" target="_blank" rel="noreferrer" className="flex-fill d-flex align-items-start gap-3 p-2 text-decoration-none hover-bg-light rounded-3 transition-03 border">
                   <FaWhatsapp className="text-success mt-1" size={22} />
                   <div>
                     <h6 className="fw-bold mb-0 text-dark" style={{fontSize: '0.9rem'}}>WhatsApp</h6>
@@ -643,8 +643,8 @@ function App() {
           </Container>
         </footer>
         <aside className="fixed-contact-buttons">
-          <a href="tel:+905541591203" className="contact-btn phone" aria-label="Telefonla Arayın"><FaPhoneAlt size={16} /></a>
-          <a href="https://wa.me/905541591203" target="_blank" rel="noopener noreferrer" className="contact-btn whatsapp" aria-label="WhatsApp Destek Hattı"><FaWhatsapp size={20} /></a>
+          <a href="tel:+905373934767" className="contact-btn phone" aria-label="Telefonla Arayın"><FaPhoneAlt size={16} /></a>
+          <a href="https://wa.me/905373934767" target="_blank" rel="noopener noreferrer" className="contact-btn whatsapp" aria-label="WhatsApp Destek Hattı"><FaWhatsapp size={20} /></a>
         </aside>
         <button className={`back-to-top-btn ${showBackToTop ? 'show' : ''}`} onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} aria-label="Yukarı Çık"><FaArrowUp size={14} /></button>
         <style>{`
