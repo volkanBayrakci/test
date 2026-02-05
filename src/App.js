@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate, useLocation } from "react-router-dom";
 import { Navbar, Container, Nav, Row, Col, Card, Button, Badge, Form, InputGroup, Carousel } from "react-bootstrap";
-import { FaSearch, FaFan, FaChevronLeft, FaChevronRight, FaWind, FaWhatsapp, FaPhoneAlt, FaArrowUp, FaTruck, FaShieldAlt, FaHeadset, FaTools, FaMapMarkerAlt, FaEnvelope, FaClock, FaIndustry, FaUtensils, FaBuilding, FaStore } from "react-icons/fa";
+import { FaSearch, FaFan, FaChevronLeft, FaChevronRight, FaWind, FaWhatsapp, FaPhoneAlt, FaArrowUp, FaTruck, FaShieldAlt, FaHeadset, FaTools, FaMapMarkerAlt, FaEnvelope, FaClock, FaIndustry, FaUtensils, FaBuilding, FaStore, FaPaperPlane } from "react-icons/fa";
 import Papa from "papaparse";
 import "bootstrap/dist/css/bootstrap.min.css";
 
@@ -176,7 +176,6 @@ const useProducts = () => {
 };
 
 const HomePage = ({ data, loading }) => {
-  <SEO title="Duru Fanmarket | Endüstriyel Havalandırma" description="Sanayi tipi fanlar ve havalandırma sistemlerinde en uygun fiyatlar." />
   const categories = useMemo(() => [...new Set(data.map(i => i.CATEGORY))], [data]);
   const featured = useMemo(() => [...data].sort(() => 0.5 - Math.random()).slice(0, 12), [data]);
   const recentlyAdded = useMemo(() => [...data].reverse().slice(0, 12), [data]);
@@ -215,6 +214,7 @@ const HomePage = ({ data, loading }) => {
 
   return (
     <>
+      <SEO title="Duru Fanmarket | Endüstriyel Havalandırma" description="Sanayi tipi fanlar ve havalandırma sistemlerinde en uygun fiyatlar." />
       <CategoryBar categories={categories} />
 
       <section aria-label="Ana Tanıtım Alanı">
@@ -244,7 +244,6 @@ const HomePage = ({ data, loading }) => {
         </Carousel>
       </section>
 
-      {/* --- FIRSAT ÜRÜNLERİ BÖLÜMÜ (Yeni eklendi) --- */}
       {discountProducts.length > 0 && (
         <section className="my-5 px-3" aria-labelledby="discount-heading">
           <Container>
@@ -359,11 +358,7 @@ const ProductsPage = ({ data, loading }) => {
   const [selectedCategory, setSelectedCategory] = useState(location.state?.category || "Hepsi");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 16;
-  <SEO
-    title={`${selectedCategory === "Hepsi" ? "Tüm Ürünler" : selectedCategory} Modelleri | Duru Fanmarket`}
-    description={`${selectedCategory} kategorisindeki en uygun fiyatlı endüstriyel fan çözümlerini Duru Fanmarket'te inceleyin.`}
-    keywords={`${selectedCategory}, sanayi tipi fan, havalandırma sistemleri, fan fiyatları`}
-  />
+
   useEffect(() => {
     const displayCat = selectedCategory === "Hepsi" ? "ÜRÜN LİSTESİ" : selectedCategory;
     document.title = `${displayCat} MODELLERİ | Duru Fanmarket`;
@@ -392,6 +387,10 @@ const ProductsPage = ({ data, loading }) => {
 
   return (
     <Container className="py-4">
+      <SEO
+        title={`${selectedCategory === "Hepsi" ? "Tüm Ürünler" : selectedCategory} Modelleri | Duru Fanmarket`}
+        description={`${selectedCategory} kategorisindeki en uygun fiyatlı endüstriyel fan çözümlerini Duru Fanmarket'te inceleyin.`}
+      />
       <header className="bg-white p-3 rounded-4 mb-2 border">
         <Row className="align-items-center g-3 text-center text-md-start">
           <Col md={4}><h1 className="fw-bold mb-0 ps-2 border-start border-4 border-primary fs-4">Ürünlerimiz</h1></Col>
@@ -428,6 +427,126 @@ const ProductsPage = ({ data, loading }) => {
           </div>
         </nav>
       )}
+    </Container>
+  );
+};
+
+const ContactPage = () => {
+  useEffect(() => {
+    document.title = "İletişim | Duru Fanmarket";
+    window.scrollTo(0, 0);
+  }, []);
+
+  return (
+    <Container className="py-5">
+      <SEO title="İletişim | Duru Fanmarket" description="Bizimle iletişime geçin, teklif alın." />
+      
+      <div className="text-center mb-5">
+        <h1 className="fw-bold mb-2">Bize Ulaşın</h1>
+        <p className="text-muted">Size en iyi havalandırma çözümlerini sunmak için buradayız.</p>
+      </div>
+
+      <Row className="g-5">
+        <Col lg={6}>
+          <div className="bg-white p-4 p-md-5 rounded-4 border shadow-sm h-100">
+            <h2 className="fw-bold mb-4 fs-4 border-bottom pb-3">İletişim Bilgileri</h2>
+            
+            <div className="d-flex flex-column gap-4 mb-4">
+              <div className="d-flex align-items-start gap-3 p-1">
+                <FaMapMarkerAlt className="text-primary mt-1" size={20} />
+                <div>
+                  <h6 className="fw-bold mb-1 text-dark">Adres</h6>
+                  <span className="text-muted small">İkitelli Organize Sanayi Bölgesi, Başakşehir / İSTANBUL</span>
+                </div>
+              </div>
+              
+              <div className="d-flex flex-column flex-sm-row gap-3">
+                <a href="tel:+" className="flex-fill d-flex align-items-start gap-3 p-2 text-decoration-none hover-bg-light rounded-3 transition-03 border">
+                  <FaPhoneAlt className="text-primary mt-1" size={18} />
+                  <div>
+                    <h6 className="fw-bold mb-0 text-dark" style={{fontSize: '0.9rem'}}>Telefon</h6>
+                    <span className="text-dark small">+999999999999</span>
+                  </div>
+                </a>
+
+                <a href="https://wa.me/90000000000000" target="_blank" rel="noreferrer" className="flex-fill d-flex align-items-start gap-3 p-2 text-decoration-none hover-bg-light rounded-3 transition-03 border">
+                  <FaWhatsapp className="text-success mt-1" size={22} />
+                  <div>
+                    <h6 className="fw-bold mb-0 text-dark" style={{fontSize: '0.9rem'}}>WhatsApp</h6>
+                    <span className="text-dark small">Mesaj Gönder</span>
+                  </div>
+                </a>
+              </div>
+            </div>
+            <div className="rounded-3 overflow-hidden border mb-4" style={{ height: "250px" }}>
+              <iframe 
+                title="Duru Fanmarket Konum"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3005.826880315336!2d28.775312!3d41.121511!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14caa164e81561f7%3A0xc69f061b4f4c898b!2zS2F5YWJhc8OptionsLCDFZWhpdCBNdXN0YWZhIEJvem9rbHUgQ2QuIE5vOjUvMSwgMzQzMDYgQmHFn2FrxZ9laGlyL8Swc3RhbmJ1bA!5e0!3m2!1str!2str!4v1700000000000"
+                width="100%" 
+                height="100%" 
+                style={{ border: 0 }} 
+                allowFullScreen="" 
+                loading="lazy">
+              </iframe>
+            </div>
+
+            <div className="pt-4 border-top">
+               <h6 className="fw-bold mb-3 d-flex align-items-center small text-uppercase text-muted"><FaClock className="me-2 text-primary" />Çalışma Saatleri</h6>
+               <div className="bg-light p-3 rounded-3">
+                 <div className="small text-muted d-flex justify-content-between mb-2">
+                   <span>Pazartesi - Cumartesi</span>
+                   <strong className="text-dark">09:00 - 19:00</strong>
+                 </div>
+                 <div className="small text-muted d-flex justify-content-between">
+                   <span>Pazar</span>
+                   <strong className="text-danger">Kapalı</strong>
+                 </div>
+               </div>
+            </div>
+          </div>
+        </Col>
+        
+        {/* SAĞ KOLON: TEKLİF FORMU */}
+        <Col lg={6}>
+          <div className="bg-white p-4 p-md-5 rounded-4 border shadow-sm h-100">
+            <h3 className="fw-bold mb-4 fs-4 border-bottom pb-3">Hızlı Teklif Formu</h3>
+            <p className="text-muted small mb-4">Aşağıdaki formu doldurarak uzman ekibimizden fiyat teklifi alabilirsiniz.</p>
+            
+            <Form onSubmit={(e) => { e.preventDefault(); alert("Mesajınız iletildi, uzman ekibimiz size en kısa sürede dönüş yapacaktır."); }}>
+              <Row>
+                <Col md={12}>
+                  <Form.Group className="mb-4">
+                    <Form.Label className="small fw-bold text-secondary">Adınız Soyadınız</Form.Label>
+                    <Form.Control placeholder="Örn: Ahmet Yılmaz" required className="py-2 rounded-3 border-light-subtle shadow-none" />
+                  </Form.Group>
+                </Col>
+                <Col md={12}>
+                  <Form.Group className="mb-4">
+                    <Form.Label className="small fw-bold text-secondary">E-Posta Adresiniz</Form.Label>
+                    <Form.Control type="email" placeholder="mail@ornek.com" required className="py-2 rounded-3 border-light-subtle shadow-none" />
+                  </Form.Group>
+                </Col>
+                <Col md={12}>
+                  <Form.Group className="mb-4">
+                    <Form.Label className="small fw-bold text-secondary">Konu / İlgilendiğiniz Ürün</Form.Label>
+                    <Form.Control placeholder="Örn: Salyangoz Fan Fiyatı" className="py-2 rounded-3 border-light-subtle shadow-none" />
+                  </Form.Group>
+                </Col>
+                <Col md={12}>
+                  <Form.Group className="mb-4">
+                    <Form.Label className="small fw-bold text-secondary">Mesajınız</Form.Label>
+                    <Form.Control as="textarea" rows={4} placeholder="Talebinizi detaylandırın..." required className="rounded-3 border-light-subtle shadow-none" />
+                  </Form.Group>
+                </Col>
+              </Row>
+              
+              <Button type="submit" className="w-100 py-3 fw-bold rounded-pill shadow-sm btn-primary border-0 transition-03 d-flex align-items-center justify-content-center gap-2">
+                <FaPaperPlane size={14} /> TALEBİ GÖNDER
+              </Button>
+            </Form>
+          </div>
+        </Col>
+      </Row>
     </Container>
   );
 };
@@ -470,6 +589,7 @@ function App() {
                 <Nav as="nav" className="text-center mt-3 mt-lg-0">
                   <Nav.Link as={Link} to="/" className="nav-custom-link" onClick={() => setNavExpanded(false)}>Anasayfa</Nav.Link>
                   <Nav.Link as={Link} to="/urunler" className="nav-custom-link" onClick={() => setNavExpanded(false)}>Ürünler</Nav.Link>
+                  <Nav.Link as={Link} to="/iletisim" className="nav-custom-link" onClick={() => setNavExpanded(false)}>İletişim</Nav.Link>
                 </Nav>
               </Navbar.Collapse>
             </Container>
@@ -479,6 +599,7 @@ function App() {
           <Routes>
             <Route path="/" element={<HomePage data={data} loading={loading} />} />
             <Route path="/urunler" element={<ProductsPage data={data} loading={loading} />} />
+            <Route path="/iletisim" element={<ContactPage />} />
           </Routes>
         </main>
         <footer className="bg-white border-top pt-5 pb-3">
@@ -511,7 +632,7 @@ function App() {
                   <h2 className="fw-bold mb-3 text-uppercase border-bottom border-primary border-2 pb-1 d-inline-block w-auto fs-6">İletişim</h2>
                   <address className="small text-muted mt-2 font-normal">
                     <p className="mb-2 text-nowrap"><FaMapMarkerAlt className="text-primary me-2" aria-hidden="true" /> İstanbul, Türkiye</p>
-                    <p className="mb-2 text-nowrap"><FaPhoneAlt className="text-primary me-2" aria-hidden="true" /> +90 5XX XXX XX XX</p>
+                    <p className="mb-2 text-nowrap"><FaPhoneAlt className="text-primary me-2" aria-hidden="true" /> +90 554 159 12 03</p>
                     <p className="mb-2 text-nowrap"><FaEnvelope className="text-primary me-2" aria-hidden="true" /> info@durufanmarket.com</p>
                   </address>
                 </section>
@@ -522,8 +643,8 @@ function App() {
           </Container>
         </footer>
         <aside className="fixed-contact-buttons">
-          <a href="tel:+905XXXXXXXXX" className="contact-btn phone" aria-label="Telefonla Arayın"><FaPhoneAlt size={16} /></a>
-          <a href="https://wa.me/905XXXXXXXXX" target="_blank" rel="noopener noreferrer" className="contact-btn whatsapp" aria-label="WhatsApp Destek Hattı"><FaWhatsapp size={20} /></a>
+          <a href="tel:+905541591203" className="contact-btn phone" aria-label="Telefonla Arayın"><FaPhoneAlt size={16} /></a>
+          <a href="https://wa.me/905541591203" target="_blank" rel="noopener noreferrer" className="contact-btn whatsapp" aria-label="WhatsApp Destek Hattı"><FaWhatsapp size={20} /></a>
         </aside>
         <button className={`back-to-top-btn ${showBackToTop ? 'show' : ''}`} onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} aria-label="Yukarı Çık"><FaArrowUp size={14} /></button>
         <style>{`
@@ -553,6 +674,16 @@ function App() {
           @media (max-width: 991px) { .banner-slide { height: 400px; } }
           .rotate-fast-alt { animation: rotation 15s infinite linear; }
           @keyframes rotation { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+          .hover-bg-light:hover { background-color: #f8f9fa; }
+          .transition-03 { transition: 0.3s all ease; }
+          .x-small { font-size: 0.75rem; }
+          .hover-bg-light.d-flex {
+          align-items: center !important;
+        }
+        .hover-bg-light svg {
+          display: block;
+          margin-top: 0 !important;
+        }
         `}</style>
       </div>
     </Router>
