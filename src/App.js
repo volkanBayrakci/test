@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate, useLocation } from "react-router-dom";
-import { Navbar, Container, Nav, Row, Col, Card, Button, Badge, Form, InputGroup, Carousel } from "react-bootstrap";
-import { FaSearch, FaFan, FaChevronLeft, FaChevronRight, FaWind, FaWhatsapp, FaPhoneAlt, FaArrowUp, FaTruck, FaShieldAlt, FaHeadset, FaTools, FaMapMarkerAlt, FaEnvelope, FaClock, FaIndustry, FaUtensils, FaBuilding, FaStore, FaPaperPlane } from "react-icons/fa";
+import { Navbar, Container, Nav, Row, Col, Card, Button, Badge, Form, InputGroup, Carousel, Modal } from "react-bootstrap";
+import { FaSearch, FaFan, FaChevronLeft, FaChevronRight, FaWind, FaWhatsapp, FaPhoneAlt, FaArrowUp, FaTruck, FaShieldAlt, FaHeadset, FaTools, FaMapMarkerAlt, FaEnvelope, FaClock, FaIndustry, FaUtensils, FaBuilding, FaStore, FaPaperPlane, FaTimes } from "react-icons/fa";
 import Papa from "papaparse";
 import "bootstrap/dist/css/bootstrap.min.css";
 
@@ -176,10 +176,21 @@ const useProducts = () => {
 };
 
 const HomePage = ({ data, loading }) => {
+  const navigate = useNavigate();
+  // MODAL STATE'LERİ
+  const [showSearchModal, setShowSearchModal] = useState(false);
+  const [modalSearchTerm, setModalSearchTerm] = useState("");
+
   const categories = useMemo(() => [...new Set(data.map(i => i.CATEGORY))], [data]);
   const featured = useMemo(() => [...data].sort(() => 0.5 - Math.random()).slice(0, 12), [data]);
   const recentlyAdded = useMemo(() => [...data].reverse().slice(0, 12), [data]);
   const discountProducts = useMemo(() => data.filter(p => p.DISCOUNT_PRICE && p.DISCOUNT_PRICE !== "0" && p.DISCOUNT_PRICE !== "").slice(0, 12), [data]);
+
+  // Modal içindeki canlı arama sonuçları
+  const searchResults = useMemo(() => {
+    if (modalSearchTerm.length < 2) return [];
+    return data.filter(p => p.PRODUCT_NAME.toLowerCase().includes(modalSearchTerm.toLowerCase())).slice(0, 8);
+  }, [modalSearchTerm, data]);
 
   const [itemsPerSlide, setItemsPerSlide] = useState(window.innerWidth < 768 ? 1 : 4);
   const carouselRef = useRef(null);
@@ -223,12 +234,25 @@ const HomePage = ({ data, loading }) => {
             <Carousel.Item key={slide.id}>
               <div className="banner-slide" style={{ background: slide.bgColor }}>
                 <div className="animated-bg-overlay"></div>
-                <Container className="position-relative text-white z-2">
+                <Container className="position-relative text-white z-2 text-center text-lg-start">
                   <Row className="align-items-center">
-                    <Col lg={7} className="text-center text-lg-start">
+                    <Col lg={7}>
                       <div className="top-badge mb-3"><FaWind className="me-2" /> {slide.topTitle}</div>
                       <h1 className="display-4 fw-black mb-3 slide-up-text">{slide.title}</h1>
                       <p className="lead mb-4 opacity-75">{slide.subtitle}</p>
+                      
+                      {/* TIKLANDIĞINDA MODAL AÇAN ARAMA KUTUSU */}
+                      <div className="d-flex justify-content-center justify-content-lg-start mb-4">
+                        <div 
+                          className="search-trigger-box bg-white rounded-pill p-2 d-flex align-items-center shadow-lg w-100" 
+                          onClick={() => setShowSearchModal(true)}
+                          style={{ cursor: 'pointer', maxWidth: '500px' }}
+                        >
+                          <FaSearch className="text-primary ms-3 me-2" />
+                          <span className="text-muted">Ürün aramak için buraya tıklayın...</span>
+                        </div>
+                      </div>
+
                       <Button as={Link} to="/urunler" size="sm" className="fw-bold px-4 py-3 rounded-pill border-0 btn-hero">
                         {slide.buttonText}
                       </Button>
@@ -243,6 +267,69 @@ const HomePage = ({ data, loading }) => {
           ))}
         </Carousel>
       </section>
+
+      {/* ARAMA MODALI */}
+      <Modal show={showSearchModal} onHide={() => {setShowSearchModal(false); setModalSearchTerm("");}} fullscreen className="search-modal-fullscreen">
+        <Modal.Body className="bg-light p-0">
+          <Container className="pt-5">
+            <div className="d-flex justify-content-end mb-4">
+              <Button variant="white" className="rounded-circle border shadow-sm" onClick={() => setShowSearchModal(false)}><FaTimes /></Button>
+            </div>
+            <Row className="justify-content-center">
+              <Col lg={8}>
+                <div className="text-center mb-5">
+                  <h2 className="fw-bold text-dark"><FaSearch className="text-primary me-2" /> Ürün Arayın</h2>
+                </div>
+                <InputGroup className="bg-white rounded-4 shadow-sm p-2 mb-4 border">
+                  <Form.Control 
+                    autoFocus
+                    placeholder="Örn: Salyangoz Fan, Aksiyel..." 
+                    className="border-0 shadow-none fs-4 px-3" 
+                    value={modalSearchTerm}
+                    onChange={(e) => setModalSearchTerm(e.target.value)}
+                  />
+                </InputGroup>
+                
+                <div className="modal-results-container">
+                  {searchResults.map((p, i) => {
+                    const searchRawImage = p.IMAGE?.startsWith('http') ? p.IMAGE : `/image/${p.IMAGE}`;
+                    return (
+                      <div 
+                        key={i} 
+                        className="bg-white p-2 mb-2 rounded-4 border d-flex align-items-center gap-3 search-item-hover shadow-sm"
+                        style={{ cursor: 'pointer' }}
+                        onClick={() => {
+                          setShowSearchModal(false);
+                          navigate('/urunler', { state: { searchTerm: p.PRODUCT_NAME } });
+                        }}
+                      >
+                        <div className="bg-white rounded p-1 border d-flex align-items-center justify-content-center overflow-hidden" style={{ width: '65px', height: '65px' }}>
+                          {p.IMAGE ? (
+                            <img src={searchRawImage} alt={p.PRODUCT_NAME} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                          ) : (
+                            <FaFan className="text-primary opacity-50" />
+                          )}
+                        </div>
+                        <div className="flex-grow-1">
+                          <div className="fw-bold text-dark mb-0" style={{ fontSize: '0.9rem' }}>{p.PRODUCT_NAME}</div>
+                          <div className="text-primary x-small fw-bold text-uppercase">{p.CATEGORY}</div>
+                        </div>
+                        <div className="text-end me-2">
+                          <div className="fw-bold text-dark" style={{ fontSize: '0.9rem' }}>{formatPrice(p.PRICE)}</div>
+                        </div>
+                        <FaChevronRight className="text-muted small me-2" />
+                      </div>
+                    );
+                  })}
+                  {modalSearchTerm.length >= 2 && searchResults.length === 0 && (
+                    <div className="text-center py-5 text-muted">Sonuç bulunamadı.</div>
+                  )}
+                </div>
+              </Col>
+            </Row>
+          </Container>
+        </Modal.Body>
+      </Modal>
 
       {discountProducts.length > 0 && (
         <section className="my-5 px-3" aria-labelledby="discount-heading">
@@ -354,7 +441,7 @@ const HomePage = ({ data, loading }) => {
 
 const ProductsPage = ({ data, loading }) => {
   const location = useLocation();
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState(location.state?.searchTerm || "");
   const [selectedCategory, setSelectedCategory] = useState(location.state?.category || "Hepsi");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 16;
@@ -364,6 +451,9 @@ const ProductsPage = ({ data, loading }) => {
     document.title = `${displayCat} MODELLERİ | Duru Fanmarket`;
     if (location.state?.category) {
       setSelectedCategory(location.state.category);
+    }
+    if (location.state?.searchTerm) {
+      setSearchTerm(location.state.searchTerm);
     }
     setCurrentPage(1);
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -397,7 +487,7 @@ const ProductsPage = ({ data, loading }) => {
           <Col md={4}>
             <InputGroup className="bg-light rounded-pill px-2 border">
               <InputGroup.Text className="bg-transparent border-0 text-muted"><FaSearch aria-hidden="true" /></InputGroup.Text>
-              <Form.Control className="bg-transparent border-0 shadow-none" placeholder="Arama yapın..." aria-label="Ürün arama kutusu" onChange={(e) => setSearchTerm(e.target.value)} />
+              <Form.Control className="bg-transparent border-0 shadow-none" placeholder="Arama yapın..." aria-label="Ürün arama kutusu" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
             </InputGroup>
           </Col>
           <Col md={4}>
@@ -506,7 +596,6 @@ const ContactPage = () => {
           </div>
         </Col>
         
-        {/* SAĞ KOLON: TEKLİF FORMU */}
         <Col lg={6}>
           <div className="bg-white p-4 p-md-5 rounded-4 border shadow-sm h-100">
             <h3 className="fw-bold mb-4 fs-4 border-bottom pb-3">Hızlı Teklif Formu</h3>
@@ -632,7 +721,7 @@ function App() {
                   <h2 className="fw-bold mb-3 text-uppercase border-bottom border-primary border-2 pb-1 d-inline-block w-auto fs-6">İletişim</h2>
                   <address className="small text-muted mt-2 font-normal">
                     <p className="mb-2 text-nowrap"><FaMapMarkerAlt className="text-primary me-2" aria-hidden="true" /> İstanbul, Türkiye</p>
-                    <p className="mb-2 text-nowrap"><FaPhoneAlt className="text-primary me-2" aria-hidden="true" /> +90 554 159 12 03</p>
+                    <p className="mb-2 text-nowrap"><FaPhoneAlt className="text-primary me-2" aria-hidden="true" /> +90 537 393 47 67</p>
                     <p className="mb-2 text-nowrap"><FaEnvelope className="text-primary me-2" aria-hidden="true" /> info@durufanmarket.com</p>
                   </address>
                 </section>
@@ -677,13 +766,9 @@ function App() {
           .hover-bg-light:hover { background-color: #f8f9fa; }
           .transition-03 { transition: 0.3s all ease; }
           .x-small { font-size: 0.75rem; }
-          .hover-bg-light.d-flex {
-          align-items: center !important;
-        }
-        .hover-bg-light svg {
-          display: block;
-          margin-top: 0 !important;
-        }
+          .search-trigger-box:hover { transform: scale(1.02); transition: 0.3s; background-color: #f8f9fa !important; }
+          .search-item-hover:hover { background-color: #f0f7ff !important; border-color: #0d6efd !important; transition: 0.2s; }
+          .modal-results-container { max-height: 450px; overflow-y: auto; }
         `}</style>
       </div>
     </Router>
