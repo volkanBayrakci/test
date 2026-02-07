@@ -59,8 +59,8 @@ const CategoryBar = ({ categories }) => {
 
 const ProductCard = ({ product }) => {
   const rawImage = product.IMAGE?.startsWith('http') ? product.IMAGE : `/image/${product.IMAGE}`;
-  const imageSrc = rawImage.includes("cloudinary.com") 
-    ? rawImage.replace("/upload/", "/upload/f_auto,q_auto,w_500/") 
+  const imageSrc = rawImage.includes("cloudinary.com")
+    ? rawImage.replace("/upload/", "/upload/f_auto,q_auto,w_500/")
     : rawImage;
   const displayM3H = (product.M3H && product.M3H !== "0" && product.M3H !== 0) ? `${product.M3H} m³/h` : "-";
   const displayStrength = (product.STRENGTH && product.STRENGTH !== "0" && product.STRENGTH !== 0) ? `${product.STRENGTH} Kw` : "-";
@@ -72,7 +72,7 @@ const ProductCard = ({ product }) => {
       <Card className="h-100 border rounded-4 overflow-hidden product-card shadow-sm">
         <div className="bg-white p-4 d-flex align-items-center justify-content-center position-relative" style={{ height: "200px" }}>
           {hasDiscount && (
-            <Badge bg="primary" className="position-absolute top-0 start-0 m-3 z-3 shadow-sm px-3 py-2 rounded-pill" style={{fontSize: '0.7rem'}}>İNDİRİM</Badge>
+            <Badge bg="primary" className="position-absolute top-0 start-0 m-3 z-3 shadow-sm px-3 py-2 rounded-pill" style={{ fontSize: '0.7rem' }}>İNDİRİM</Badge>
           )}
           {product.IMAGE ? (
             <img src={imageSrc} alt={`${product.PRODUCT_NAME} Havalandırma Fanı`} loading="lazy" style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }}
@@ -144,7 +144,7 @@ const useProducts = () => {
     }
 
     const sheetUrl = process.env.REACT_APP_SHEET_URL;
-    
+
     if (sheetUrl) {
       Papa.parse(sheetUrl, {
         download: true,
@@ -167,7 +167,7 @@ const useProducts = () => {
     }
     const timeout = setTimeout(() => {
       setLoading(false);
-    }, 10000); 
+    }, 10000);
 
     return () => clearTimeout(timeout);
   }, []);
@@ -177,7 +177,7 @@ const useProducts = () => {
 
 const HomePage = ({ data, loading }) => {
   const navigate = useNavigate();
-  // MODAL STATE'LERİ
+
   const [showSearchModal, setShowSearchModal] = useState(false);
   const [modalSearchTerm, setModalSearchTerm] = useState("");
 
@@ -186,7 +186,7 @@ const HomePage = ({ data, loading }) => {
   const recentlyAdded = useMemo(() => [...data].reverse().slice(0, 12), [data]);
   const discountProducts = useMemo(() => data.filter(p => p.DISCOUNT_PRICE && p.DISCOUNT_PRICE !== "0" && p.DISCOUNT_PRICE !== "").slice(0, 12), [data]);
 
-  // Modal içindeki canlı arama sonuçları
+
   const searchResults = useMemo(() => {
     if (modalSearchTerm.length < 2) return [];
     return data.filter(p => p.PRODUCT_NAME.toLowerCase().includes(modalSearchTerm.toLowerCase())).slice(0, 8);
@@ -240,11 +240,11 @@ const HomePage = ({ data, loading }) => {
                       <div className="top-badge mb-3"><FaWind className="me-2" /> {slide.topTitle}</div>
                       <h1 className="display-4 fw-black mb-3 slide-up-text">{slide.title}</h1>
                       <p className="lead mb-4 opacity-75">{slide.subtitle}</p>
-                      
-                      {/* TIKLANDIĞINDA MODAL AÇAN ARAMA KUTUSU */}
+
+
                       <div className="d-flex justify-content-center justify-content-lg-start mb-4">
-                        <div 
-                          className="search-trigger-box bg-white rounded-pill p-2 d-flex align-items-center shadow-lg w-100" 
+                        <div
+                          className="search-trigger-box bg-white rounded-pill p-2 d-flex align-items-center shadow-lg w-100"
                           onClick={() => setShowSearchModal(true)}
                           style={{ cursor: 'pointer', maxWidth: '500px' }}
                         >
@@ -268,8 +268,8 @@ const HomePage = ({ data, loading }) => {
         </Carousel>
       </section>
 
-      {/* ARAMA MODALI */}
-      <Modal show={showSearchModal} onHide={() => {setShowSearchModal(false); setModalSearchTerm("");}} fullscreen className="search-modal-fullscreen">
+
+      <Modal show={showSearchModal} onHide={() => { setShowSearchModal(false); setModalSearchTerm(""); }} fullscreen className="search-modal-fullscreen">
         <Modal.Body className="bg-light p-0">
           <Container className="pt-5">
             <div className="d-flex justify-content-end mb-4">
@@ -281,21 +281,21 @@ const HomePage = ({ data, loading }) => {
                   <h2 className="fw-bold text-dark"><FaSearch className="text-primary me-2" /> Ürün Arayın</h2>
                 </div>
                 <InputGroup className="bg-white rounded-4 shadow-sm p-2 mb-4 border">
-                  <Form.Control 
+                  <Form.Control
                     autoFocus
-                    placeholder="Örn: Salyangoz Fan, Aksiyel..." 
-                    className="border-0 shadow-none fs-4 px-3" 
+                    placeholder="Örn: Salyangoz Fan, Aksiyel..."
+                    className="border-0 shadow-none fs-4 px-3"
                     value={modalSearchTerm}
                     onChange={(e) => setModalSearchTerm(e.target.value)}
                   />
                 </InputGroup>
-                
+
                 <div className="modal-results-container">
                   {searchResults.map((p, i) => {
                     const searchRawImage = p.IMAGE?.startsWith('http') ? p.IMAGE : `/image/${p.IMAGE}`;
                     return (
-                      <div 
-                        key={i} 
+                      <div
+                        key={i}
                         className="bg-white p-2 mb-2 rounded-4 border d-flex align-items-center gap-3 search-item-hover shadow-sm"
                         style={{ cursor: 'pointer' }}
                         onClick={() => {
@@ -530,7 +530,7 @@ const ContactPage = () => {
   return (
     <Container className="py-5">
       <SEO title="İletişim | Duru Fanmarket" description="Bizimle iletişime geçin, teklif alın." />
-      
+
       <div className="text-center mb-5">
         <h1 className="fw-bold mb-2">Bize Ulaşın</h1>
         <p className="text-muted">Size en iyi havalandırma çözümlerini sunmak için buradayız.</p>
@@ -540,7 +540,7 @@ const ContactPage = () => {
         <Col lg={6}>
           <div className="bg-white p-4 p-md-5 rounded-4 border shadow-sm h-100">
             <h2 className="fw-bold mb-4 fs-4 border-bottom pb-3">İletişim Bilgileri</h2>
-            
+
             <div className="d-flex flex-column gap-4 mb-4">
               <div className="d-flex align-items-start gap-3 p-1">
                 <FaMapMarkerAlt className="text-primary mt-1" size={20} />
@@ -549,12 +549,12 @@ const ContactPage = () => {
                   <span className="text-muted small">İkitelli Organize Sanayi Bölgesi, Başakşehir / İSTANBUL</span>
                 </div>
               </div>
-              
+
               <div className="d-flex flex-column flex-sm-row gap-3">
                 <a href="tel:+" className="flex-fill d-flex align-items-start gap-3 p-2 text-decoration-none hover-bg-light rounded-3 transition-03 border">
                   <FaPhoneAlt className="text-primary mt-1" size={18} />
                   <div>
-                    <h6 className="fw-bold mb-0 text-dark" style={{fontSize: '0.9rem'}}>Telefon</h6>
+                    <h6 className="fw-bold mb-0 text-dark" style={{ fontSize: '0.9rem' }}>Telefon</h6>
                     <span className="text-dark small">05373934767</span>
                   </div>
                 </a>
@@ -562,45 +562,45 @@ const ContactPage = () => {
                 <a href="https://wa.me/905373934767" target="_blank" rel="noreferrer" className="flex-fill d-flex align-items-start gap-3 p-2 text-decoration-none hover-bg-light rounded-3 transition-03 border">
                   <FaWhatsapp className="text-success mt-1" size={22} />
                   <div>
-                    <h6 className="fw-bold mb-0 text-dark" style={{fontSize: '0.9rem'}}>WhatsApp</h6>
+                    <h6 className="fw-bold mb-0 text-dark" style={{ fontSize: '0.9rem' }}>WhatsApp</h6>
                     <span className="text-dark small">Mesaj Gönder</span>
                   </div>
                 </a>
               </div>
             </div>
             <div className="rounded-3 overflow-hidden border mb-4" style={{ height: "250px" }}>
-              <iframe 
+              <iframe
                 title="Duru Fanmarket Konum"
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3005.826880315336!2d28.775312!3d41.121511!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14caa164e81561f7%3A0xc69f061b4f4c898b!2zS2F5YWJhc8OptionsLCDFZWhpdCBNdXN0YWZhIEJvem9rbHUgQ2QuIE5vOjUvMSwgMzQzMDYgQmHFn2FrxZ9laGlyL8Swc3RhbmJ1bA!5e0!3m2!1str!2str!4v1700000000000"
-                width="100%" 
-                height="100%" 
-                style={{ border: 0 }} 
-                allowFullScreen="" 
+                width="100%"
+                height="100%"
+                style={{ border: 0 }}
+                allowFullScreen=""
                 loading="lazy">
               </iframe>
             </div>
 
             <div className="pt-4 border-top">
-               <h6 className="fw-bold mb-3 d-flex align-items-center small text-uppercase text-muted"><FaClock className="me-2 text-primary" />Çalışma Saatleri</h6>
-               <div className="bg-light p-3 rounded-3">
-                 <div className="small text-muted d-flex justify-content-between mb-2">
-                   <span>Pazartesi - Cumartesi</span>
-                   <strong className="text-dark">09:00 - 19:00</strong>
-                 </div>
-                 <div className="small text-muted d-flex justify-content-between">
-                   <span>Pazar</span>
-                   <strong className="text-danger">Kapalı</strong>
-                 </div>
-               </div>
+              <h6 className="fw-bold mb-3 d-flex align-items-center small text-uppercase text-muted"><FaClock className="me-2 text-primary" />Çalışma Saatleri</h6>
+              <div className="bg-light p-3 rounded-3">
+                <div className="small text-muted d-flex justify-content-between mb-2">
+                  <span>Pazartesi - Cumartesi</span>
+                  <strong className="text-dark">09:00 - 19:00</strong>
+                </div>
+                <div className="small text-muted d-flex justify-content-between">
+                  <span>Pazar</span>
+                  <strong className="text-danger">Kapalı</strong>
+                </div>
+              </div>
             </div>
           </div>
         </Col>
-        
+
         <Col lg={6}>
           <div className="bg-white p-4 p-md-5 rounded-4 border shadow-sm h-100">
             <h3 className="fw-bold mb-4 fs-4 border-bottom pb-3">Hızlı Teklif Formu</h3>
             <p className="text-muted small mb-4">Aşağıdaki formu doldurarak uzman ekibimizden fiyat teklifi alabilirsiniz.</p>
-            
+
             <Form onSubmit={(e) => { e.preventDefault(); alert("Mesajınız iletildi, uzman ekibimiz size en kısa sürede dönüş yapacaktır."); }}>
               <Row>
                 <Col md={12}>
@@ -628,7 +628,7 @@ const ContactPage = () => {
                   </Form.Group>
                 </Col>
               </Row>
-              
+
               <Button type="submit" className="w-100 py-3 fw-bold rounded-pill shadow-sm btn-primary border-0 transition-03 d-flex align-items-center justify-content-center gap-2">
                 <FaPaperPlane size={14} /> TALEBİ GÖNDER
               </Button>
