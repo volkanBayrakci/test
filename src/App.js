@@ -501,8 +501,8 @@ const ProductsPage = ({ data, loading }) => {
         <span className="text-muted">Toplam <span className="text-primary fw-bold">{filtered.length}</span> ürün listeleniyor</span>
       </div>
       <section aria-label="Ürün Listesi">
-        <Row className="gy-4">
-          {currentItems.map((p, i) => (<Col xs={12} md={6} lg={4} xl={3} key={i}><ProductCard product={p} /></Col>))}
+        <Row className="gx-2 gy-2">
+          {currentItems.map((p, i) => (<Col xs={6} md={6} lg={4} xl={3} key={i}><ProductCard product={p} /></Col>))}
         </Row>
       </section>
       {!loading && totalPages > 1 && (
@@ -768,7 +768,7 @@ function App() {
           .x-small { font-size: 0.75rem; }
           .search-trigger-box:hover { transform: scale(1.02); transition: 0.3s; background-color: #f8f9fa !important; }
           .search-item-hover:hover { background-color: #f0f7ff !important; border-color: #0d6efd !important; transition: 0.2s; }
-          .modal-results-container { max-height: 450px; overflow-y: auto; }
+          .modal-results-container { max-height: 450px; overflow-y: auto; }  
         `}</style>
       </div>
     </Router>
