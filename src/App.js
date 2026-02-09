@@ -176,21 +176,10 @@ const useProducts = () => {
 };
 
 const HomePage = ({ data, loading }) => {
-  const navigate = useNavigate();
-
-  const [showSearchModal, setShowSearchModal] = useState(false);
-  const [modalSearchTerm, setModalSearchTerm] = useState("");
-
   const categories = useMemo(() => [...new Set(data.map(i => i.CATEGORY))], [data]);
   const featured = useMemo(() => [...data].sort(() => 0.5 - Math.random()).slice(0, 12), [data]);
   const recentlyAdded = useMemo(() => [...data].reverse().slice(0, 12), [data]);
   const discountProducts = useMemo(() => data.filter(p => p.DISCOUNT_PRICE && p.DISCOUNT_PRICE !== "0" && p.DISCOUNT_PRICE !== "").slice(0, 12), [data]);
-
-
-  const searchResults = useMemo(() => {
-    if (modalSearchTerm.length < 2) return [];
-    return data.filter(p => p.PRODUCT_NAME.toLowerCase().includes(modalSearchTerm.toLowerCase())).slice(0, 8);
-  }, [modalSearchTerm, data]);
 
   const [itemsPerSlide, setItemsPerSlide] = useState(window.innerWidth < 768 ? 1 : 4);
   const carouselRef = useRef(null);
@@ -240,19 +229,6 @@ const HomePage = ({ data, loading }) => {
                       <div className="top-badge mb-3"><FaWind className="me-2" /> {slide.topTitle}</div>
                       <h1 className="display-4 fw-black mb-3 slide-up-text">{slide.title}</h1>
                       <p className="lead mb-4 opacity-75">{slide.subtitle}</p>
-
-
-                      <div className="d-flex justify-content-center justify-content-lg-start mb-4">
-                        <div
-                          className="search-trigger-box bg-white rounded-pill p-2 d-flex align-items-center shadow-lg w-100"
-                          onClick={() => setShowSearchModal(true)}
-                          style={{ cursor: 'pointer', maxWidth: '500px' }}
-                        >
-                          <FaSearch className="text-primary ms-3 me-2" />
-                          <span className="text-muted">Ürün aramak için buraya tıklayın...</span>
-                        </div>
-                      </div>
-
                       <Button as={Link} to="/urunler" size="sm" className="fw-bold px-4 py-3 rounded-pill border-0 btn-hero">
                         {slide.buttonText}
                       </Button>
@@ -267,69 +243,6 @@ const HomePage = ({ data, loading }) => {
           ))}
         </Carousel>
       </section>
-
-
-      <Modal show={showSearchModal} onHide={() => { setShowSearchModal(false); setModalSearchTerm(""); }} fullscreen className="search-modal-fullscreen">
-        <Modal.Body className="bg-light p-0">
-          <Container className="pt-5">
-            <div className="d-flex justify-content-end mb-4">
-              <Button variant="white" className="rounded-circle border shadow-sm" onClick={() => setShowSearchModal(false)}><FaTimes /></Button>
-            </div>
-            <Row className="justify-content-center">
-              <Col lg={8}>
-                <div className="text-center mb-5">
-                  <h2 className="fw-bold text-dark"><FaSearch className="text-primary me-2" /> Ürün Arayın</h2>
-                </div>
-                <InputGroup className="bg-white rounded-4 shadow-sm p-2 mb-4 border">
-                  <Form.Control
-                    autoFocus
-                    placeholder="Örn: Salyangoz Fan, Aksiyel..."
-                    className="border-0 shadow-none fs-4 px-3"
-                    value={modalSearchTerm}
-                    onChange={(e) => setModalSearchTerm(e.target.value)}
-                  />
-                </InputGroup>
-
-                <div className="modal-results-container">
-                  {searchResults.map((p, i) => {
-                    const searchRawImage = p.IMAGE?.startsWith('http') ? p.IMAGE : `/image/${p.IMAGE}`;
-                    return (
-                      <div
-                        key={i}
-                        className="bg-white p-2 mb-2 rounded-4 border d-flex align-items-center gap-3 search-item-hover shadow-sm"
-                        style={{ cursor: 'pointer' }}
-                        onClick={() => {
-                          setShowSearchModal(false);
-                          navigate('/urunler', { state: { searchTerm: p.PRODUCT_NAME } });
-                        }}
-                      >
-                        <div className="bg-white rounded p-1 border d-flex align-items-center justify-content-center overflow-hidden" style={{ width: '65px', height: '65px' }}>
-                          {p.IMAGE ? (
-                            <img src={searchRawImage} alt={p.PRODUCT_NAME} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-                          ) : (
-                            <FaFan className="text-primary opacity-50" />
-                          )}
-                        </div>
-                        <div className="flex-grow-1">
-                          <div className="fw-bold text-dark mb-0" style={{ fontSize: '0.9rem' }}>{p.PRODUCT_NAME}</div>
-                          <div className="text-primary x-small fw-bold text-uppercase">{p.CATEGORY}</div>
-                        </div>
-                        <div className="text-end me-2">
-                          <div className="fw-bold text-dark" style={{ fontSize: '0.9rem' }}>{formatPrice(p.PRICE)}</div>
-                        </div>
-                        <FaChevronRight className="text-muted small me-2" />
-                      </div>
-                    );
-                  })}
-                  {modalSearchTerm.length >= 2 && searchResults.length === 0 && (
-                    <div className="text-center py-5 text-muted">Sonuç bulunamadı.</div>
-                  )}
-                </div>
-              </Col>
-            </Row>
-          </Container>
-        </Modal.Body>
-      </Modal>
 
       {discountProducts.length > 0 && (
         <section className="my-5 px-3" aria-labelledby="discount-heading">
@@ -449,11 +362,15 @@ const ProductsPage = ({ data, loading }) => {
   useEffect(() => {
     const displayCat = selectedCategory === "Hepsi" ? "ÜRÜN LİSTESİ" : selectedCategory;
     document.title = `${displayCat} MODELLERİ | Duru Fanmarket`;
+    
+    // Kategori ve Arama senkronizasyon düzeltmesi
     if (location.state?.category) {
       setSelectedCategory(location.state.category);
+      setSearchTerm(""); // Kategori seçilince aramayı temizle
     }
     if (location.state?.searchTerm) {
       setSearchTerm(location.state.searchTerm);
+      setSelectedCategory("Hepsi"); // Arama yapılınca kategori engelini kaldır
     }
     setCurrentPage(1);
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -644,6 +561,17 @@ function App() {
   const { data, loading } = useProducts();
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [navExpanded, setNavExpanded] = useState(false);
+  
+  // Modal State'lerini buraya taşıdım (Navbar'dan açılabilmesi için)
+  const [showSearchModal, setShowSearchModal] = useState(false);
+  const [modalSearchTerm, setModalSearchTerm] = useState("");
+
+  const navigate = useNavigate();
+
+  const searchResults = useMemo(() => {
+    if (modalSearchTerm.length < 2) return [];
+    return data.filter(p => p.PRODUCT_NAME.toLowerCase().includes(modalSearchTerm.toLowerCase())).slice(0, 8);
+  }, [modalSearchTerm, data]);
 
   useEffect(() => {
     const handleScroll = () => setShowBackToTop(window.scrollY > 400);
@@ -663,18 +591,36 @@ function App() {
   }
 
   return (
-    <Router>
       <div style={{ backgroundColor: "#f8f9fa", minHeight: "100vh" }} className="d-flex flex-column">
         <header className="sticky-top">
           <Navbar bg="white" expand="lg" expanded={navExpanded} onToggle={(expanded) => setNavExpanded(expanded)} className="main-navbar py-3 border-bottom shadow-sm">
             <Container>
-              <Navbar.Brand as={Link} to="/" className="fw-bold fs-3" onClick={() => setNavExpanded(false)}>
+              <Navbar.Brand as={Link} to="/" className="fw-bold fs-3 m-0" onClick={() => setNavExpanded(false)}>
                 <span style={{ color: "#0d6efd" }}>DURU</span><span style={{ color: "#000" }}>FANMARKET</span>
               </Navbar.Brand>
+
+              {/* MOBİL İÇİN ARAMA İKONU (Hamburger'in yanında) */}
+              <div className="d-lg-none ms-auto me-3" onClick={() => setShowSearchModal(true)} style={{ cursor: 'pointer' }}>
+                <FaSearch size={20} className="text-primary" />
+              </div>
+
               <Navbar.Toggle className="border-0 shadow-none p-0 custom-toggler" aria-controls="main-navigation">
                 <div className={`hamburger-icon ${navExpanded ? 'open' : ''}`}><span></span><span></span><span></span></div>
               </Navbar.Toggle>
-              <Navbar.Collapse id="main-navigation" className="justify-content-end">
+
+              <Navbar.Collapse id="main-navigation">
+                {/* MASAÜSTÜ İÇİN ORTADAKİ ARAMA ÇUBUĞU */}
+                <div className="d-none d-lg-flex mx-auto w-50 justify-content-center">
+                  <div 
+                    className="search-trigger-box bg-light rounded-pill px-3 py-2 d-flex align-items-center border w-75"
+                    onClick={() => setShowSearchModal(true)}
+                    style={{ cursor: 'pointer', transition: '0.3s' }}
+                  >
+                    <FaSearch className="text-muted me-2" />
+                    <span className="text-muted small">Ürün ara...</span>
+                  </div>
+                </div>
+
                 <Nav as="nav" className="text-center mt-3 mt-lg-0">
                   <Nav.Link as={Link} to="/" className="nav-custom-link" onClick={() => setNavExpanded(false)}>Anasayfa</Nav.Link>
                   <Nav.Link as={Link} to="/urunler" className="nav-custom-link" onClick={() => setNavExpanded(false)}>Ürünler</Nav.Link>
@@ -684,6 +630,7 @@ function App() {
             </Container>
           </Navbar>
         </header>
+
         <main className="flex-grow-1">
           <Routes>
             <Route path="/" element={<HomePage data={data} loading={loading} />} />
@@ -691,6 +638,69 @@ function App() {
             <Route path="/iletisim" element={<ContactPage />} />
           </Routes>
         </main>
+
+        {/* MODAL ARTIK APP İÇİNDE (HER YERDEN AÇILABİLİR) */}
+        <Modal show={showSearchModal} onHide={() => { setShowSearchModal(false); setModalSearchTerm(""); }} fullscreen className="search-modal-fullscreen">
+          <Modal.Body className="bg-light p-0">
+            <Container className="pt-5">
+              <div className="d-flex justify-content-end mb-4">
+                <Button variant="white" className="rounded-circle border shadow-sm" onClick={() => setShowSearchModal(false)}><FaTimes /></Button>
+              </div>
+              <Row className="justify-content-center">
+                <Col lg={8}>
+                  <div className="text-center mb-5">
+                    <h2 className="fw-bold text-dark"><FaSearch className="text-primary me-2" /> Ürün Arayın</h2>
+                  </div>
+                  <InputGroup className="bg-white rounded-4 shadow-sm p-2 mb-4 border">
+                    <Form.Control
+                      autoFocus
+                      placeholder="Örn: Salyangoz Fan, Aksiyel..."
+                      className="border-0 shadow-none fs-4 px-3"
+                      value={modalSearchTerm}
+                      onChange={(e) => setModalSearchTerm(e.target.value)}
+                    />
+                  </InputGroup>
+                  <div className="modal-results-container">
+                    {searchResults.map((p, i) => {
+                      const searchRawImage = p.IMAGE?.startsWith('http') ? p.IMAGE : `/image/${p.IMAGE}`;
+                      return (
+                        <div
+                          key={i}
+                          className="bg-white p-2 mb-2 rounded-4 border d-flex align-items-center gap-3 search-item-hover shadow-sm"
+                          style={{ cursor: 'pointer' }}
+                          onClick={() => {
+                            setShowSearchModal(false);
+                            navigate('/urunler', { state: { searchTerm: p.PRODUCT_NAME } });
+                          }}
+                        >
+                          <div className="bg-white rounded p-1 border d-flex align-items-center justify-content-center overflow-hidden" style={{ width: '65px', height: '65px' }}>
+                            {p.IMAGE ? (
+                              <img src={searchRawImage} alt={p.PRODUCT_NAME} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                            ) : (
+                              <FaFan className="text-primary opacity-50" />
+                            )}
+                          </div>
+                          <div className="flex-grow-1">
+                            <div className="fw-bold text-dark mb-0" style={{ fontSize: '0.9rem' }}>{p.PRODUCT_NAME}</div>
+                            <div className="text-primary x-small fw-bold text-uppercase">{p.CATEGORY}</div>
+                          </div>
+                          <div className="text-end me-2">
+                            <div className="fw-bold text-dark" style={{ fontSize: '0.9rem' }}>{formatPrice(p.PRICE)}</div>
+                          </div>
+                          <FaChevronRight className="text-muted small me-2" />
+                        </div>
+                      );
+                    })}
+                    {modalSearchTerm.length >= 2 && searchResults.length === 0 && (
+                      <div className="text-center py-5 text-muted">Sonuç bulunamadı.</div>
+                    )}
+                  </div>
+                </Col>
+              </Row>
+            </Container>
+          </Modal.Body>
+        </Modal>
+
         <footer className="bg-white border-top pt-5 pb-3">
           <Container>
             <Row className="gy-4 justify-content-lg-between text-center text-md-start">
@@ -737,6 +747,8 @@ function App() {
         </aside>
         <button className={`back-to-top-btn ${showBackToTop ? 'show' : ''}`} onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} aria-label="Yukarı Çık"><FaArrowUp size={14} /></button>
         <style>{`
+          /* X EKSENİNDE KAYMAYI ENGELLEYEN KRİTİK KOD */
+          html, body { overflow-x: hidden; width: 100%; position: relative; }
           .no-scrollbar::-webkit-scrollbar { display: none; }
           .nav-custom-link { font-weight: 700; color: #333 !important; padding: 8px 20px !important; position: relative; }
           @media (min-width: 992px) { .nav-custom-link::after { content: ''; position: absolute; width: 0; height: 3px; bottom: 0; left: 50%; background-color: #0d6efd; transition: 0.3s; transform: translateX(-50%); } .nav-custom-link:hover::after { width: 60%; } }
@@ -768,11 +780,34 @@ function App() {
           .x-small { font-size: 0.75rem; }
           .search-trigger-box:hover { transform: scale(1.02); transition: 0.3s; background-color: #f8f9fa !important; }
           .search-item-hover:hover { background-color: #f0f7ff !important; border-color: #0d6efd !important; transition: 0.2s; }
-          .modal-results-container { max-height: 450px; overflow-y: auto; }  
+          .modal-results-container { max-height: 450px; overflow-y: auto; }
+          
+          /* MOBİL ÜRÜN LİSTESİ İKİLİ GÖRÜNÜM VE YAZI KÜÇÜLTME */
+          @media (max-width: 576px) {
+            .container { padding-left: 8px !important; padding-right: 8px !important; }
+            .row.gx-2 { margin-left: -4px !important; margin-right: -4px !important; }
+            .col-6 .product-card .card-body { padding: 8px !important; }
+            .col-6 .product-card .text-uppercase { font-size: 0.55rem !important; }
+            .col-6 .product-card .card-title { font-size: 0.75rem !important; min-height: 32px !important; line-height: 1.2; margin-bottom: 5px !important; }
+            .col-6 .product-card .fw-bold.text-primary.fs-5, 
+            .col-6 .product-card .text-primary.fs-5,
+            .col-6 .product-card .price-area div,
+            .col-6 .product-price { font-size: 0.9rem !important; letter-spacing: -0.5px; }
+            .col-6 .product-card small.text-muted { font-size: 0.65rem !important; }
+            .col-6 .product-card footer { margin-top: 5px !important; }
+            .col-6 .product-card .btn { font-size: 0.7rem !important; padding: 5px 2px !important; border-radius: 6px !important; }
+            .col-6 .product-card div[style*="height: 200px"],
+            .col-6 .product-card div[style*="height: 180px"] { height: 130px !important; }
+          }
         `}</style>
       </div>
-    </Router>
   );
 }
 
-export default App;
+export default function RootApp() {
+  return (
+    <Router>
+      <App />
+    </Router>
+  );
+}
