@@ -43,16 +43,95 @@ const formatPrice = (val) => {
 
 const CategoryBar = ({ categories }) => {
   const navigate = useNavigate();
+  const scrollRef = useRef(null);
+
+  const scroll = (direction) => {
+    if (scrollRef.current) {
+      const { scrollLeft } = scrollRef.current;
+      const scrollAmount = 300;
+      const scrollTo = direction === 'left' ? scrollLeft - scrollAmount : scrollLeft + scrollAmount;
+      
+      scrollRef.current.scrollTo({
+        left: scrollTo,
+        behavior: 'smooth'
+      });
+    }
+  };
+
   return (
-    <nav className="category-scroll-wrapper py-3 border-bottom bg-white" aria-label="Kategori Gezintisi">
-      <Container>
-        <div className="d-flex overflow-auto no-scrollbar gap-2 py-1 align-items-center">
-          <Button variant="primary" size="sm" className="rounded-pill text-nowrap px-4 fw-bold" onClick={() => navigate('/urunler', { state: { category: 'Hepsi' } })}>Tüm Ürünler</Button>
+    <nav className="category-scroll-wrapper py-3 border-bottom bg-white position-relative">
+      <Container className="position-relative category-nav-container">
+        
+        <Button 
+          variant="white" 
+          className="d-none d-lg-flex position-absolute start-0 top-50 translate-middle-y z-3 shadow-sm rounded-circle border p-1 ms-n2 scroll-arrow-btn"
+          onClick={() => scroll('left')}
+          style={{ width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'white' }}
+        >
+          <FaChevronLeft size={12} className="text-primary" />
+        </Button>
+        <div 
+          ref={scrollRef}
+          className="d-flex overflow-auto no-scrollbar gap-2 py-1 align-items-center"
+          style={{ scrollBehavior: 'smooth' }}
+        >
+          <Button 
+            variant="primary" 
+            size="sm" 
+            className="rounded-pill text-nowrap px-4 fw-bold shadow-sm" 
+            onClick={() => navigate('/urunler', { state: { category: 'Hepsi' } })}
+          >
+            Tüm Ürünler
+          </Button>
+          
           {categories.map((cat, i) => (
-            <Button key={i} variant="white" size="sm" className="rounded-pill text-nowrap px-3 border border-light-subtle fw-semibold bg-white" onClick={() => navigate('/urunler', { state: { category: cat } })}>{cat}</Button>
+            <Button 
+              key={i} 
+              variant="white" 
+              size="sm" 
+              className="rounded-pill text-nowrap px-3 border border-light-subtle fw-semibold bg-white hover-bg-light transition-03" 
+              onClick={() => navigate('/urunler', { state: { category: cat } })}
+            >
+              {cat}
+            </Button>
           ))}
         </div>
+        <Button 
+          variant="white" 
+          className="d-none d-lg-flex position-absolute end-0 top-50 translate-middle-y z-3 shadow-sm rounded-circle border p-1 me-n2 scroll-arrow-btn"
+          onClick={() => scroll('right')}
+          style={{ width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'white' }}
+        >
+          <FaChevronRight size={12} className="text-primary" />
+        </Button>
       </Container>
+
+      <style>{`
+        .category-nav-container .scroll-arrow-btn {
+          opacity: 0;
+          visibility: hidden;
+          transition: all 0.3s ease;
+          border-color: #eee !important;
+        }
+        .category-nav-container:hover .scroll-arrow-btn {
+          opacity: 1;
+          visibility: visible;
+        }
+        .scroll-arrow-btn:hover {
+          background-color: #0d6efd !important;
+          border-color: #0d6efd !important;
+        }
+        .scroll-arrow-btn:hover svg {
+          color: white !important;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        .no-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+      `}</style>
     </nav>
   );
 };
