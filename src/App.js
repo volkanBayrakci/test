@@ -362,15 +362,14 @@ const ProductsPage = ({ data, loading }) => {
   useEffect(() => {
     const displayCat = selectedCategory === "Hepsi" ? "ÜRÜN LİSTESİ" : selectedCategory;
     document.title = `${displayCat} MODELLERİ | Duru Fanmarket`;
-    
-    // Kategori ve Arama senkronizasyon düzeltmesi
+
     if (location.state?.category) {
       setSelectedCategory(location.state.category);
-      setSearchTerm(""); // Kategori seçilince aramayı temizle
+      setSearchTerm("");
     }
     if (location.state?.searchTerm) {
       setSearchTerm(location.state.searchTerm);
-      setSelectedCategory("Hepsi"); // Arama yapılınca kategori engelini kaldır
+      setSelectedCategory("Hepsi"); 
     }
     setCurrentPage(1);
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -561,12 +560,13 @@ function App() {
   const { data, loading } = useProducts();
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [navExpanded, setNavExpanded] = useState(false);
-  
+
   // Modal State'lerini buraya taşıdım (Navbar'dan açılabilmesi için)
   const [showSearchModal, setShowSearchModal] = useState(false);
   const [modalSearchTerm, setModalSearchTerm] = useState("");
 
   const navigate = useNavigate();
+  const location = useLocation();
 
   const searchResults = useMemo(() => {
     if (modalSearchTerm.length < 2) return [];
@@ -591,27 +591,29 @@ function App() {
   }
 
   return (
-      <div style={{ backgroundColor: "#f8f9fa", minHeight: "100vh" }} className="d-flex flex-column">
-        <header className="sticky-top">
-          <Navbar bg="white" expand="lg" expanded={navExpanded} onToggle={(expanded) => setNavExpanded(expanded)} className="main-navbar py-3 border-bottom shadow-sm">
-            <Container>
-              <Navbar.Brand as={Link} to="/" className="fw-bold fs-3 m-0" onClick={() => setNavExpanded(false)}>
-                <span style={{ color: "#0d6efd" }}>DURU</span><span style={{ color: "#000" }}>FANMARKET</span>
-              </Navbar.Brand>
+    <div style={{ backgroundColor: "#f8f9fa", minHeight: "100vh" }} className="d-flex flex-column">
+      <header className="sticky-top">
+        <Navbar bg="white" expand="lg" expanded={navExpanded} onToggle={(expanded) => setNavExpanded(expanded)} className="main-navbar py-3 border-bottom shadow-sm">
+          <Container>
+            <Navbar.Brand as={Link} to="/" className="fw-bold fs-3 m-0" onClick={() => setNavExpanded(false)}>
+              <span style={{ color: "#0d6efd" }}>DURU</span><span style={{ color: "#000" }}>FANMARKET</span>
+            </Navbar.Brand>
 
-              {/* MOBİL İÇİN ARAMA İKONU (Hamburger'in yanında) */}
+            {location.pathname !== "/urunler" && (
               <div className="d-lg-none ms-auto me-3" onClick={() => setShowSearchModal(true)} style={{ cursor: 'pointer' }}>
                 <FaSearch size={20} className="text-primary" />
               </div>
 
-              <Navbar.Toggle className="border-0 shadow-none p-0 custom-toggler" aria-controls="main-navigation">
-                <div className={`hamburger-icon ${navExpanded ? 'open' : ''}`}><span></span><span></span><span></span></div>
-              </Navbar.Toggle>
+            )}
 
-              <Navbar.Collapse id="main-navigation">
-                {/* MASAÜSTÜ İÇİN ORTADAKİ ARAMA ÇUBUĞU */}
+            <Navbar.Toggle className="border-0 shadow-none p-0 custom-toggler" aria-controls="main-navigation">
+              <div className={`hamburger-icon ${navExpanded ? 'open' : ''}`}><span></span><span></span><span></span></div>
+            </Navbar.Toggle>
+
+            <Navbar.Collapse id="main-navigation">
+              {location.pathname !== "/urunler" && (
                 <div className="d-none d-lg-flex mx-auto w-50 justify-content-center">
-                  <div 
+                  <div
                     className="search-trigger-box bg-light rounded-pill px-3 py-2 d-flex align-items-center border w-75"
                     onClick={() => setShowSearchModal(true)}
                     style={{ cursor: 'pointer', transition: '0.3s' }}
@@ -620,133 +622,132 @@ function App() {
                     <span className="text-muted small">Ürün ara...</span>
                   </div>
                 </div>
+              )}
+              <Nav as="nav" className="ms-auto text-center mt-3 mt-lg-0">
+                <Nav.Link as={Link} to="/" className="nav-custom-link" onClick={() => setNavExpanded(false)}>Anasayfa</Nav.Link>
+                <Nav.Link as={Link} to="/urunler" className="nav-custom-link" onClick={() => setNavExpanded(false)}>Ürünler</Nav.Link>
+                <Nav.Link as={Link} to="/iletisim" className="nav-custom-link" onClick={() => setNavExpanded(false)}>İletişim</Nav.Link>
+              </Nav>
+            </Navbar.Collapse>
+          </Container>
+        </Navbar>
+      </header>
 
-                <Nav as="nav" className="text-center mt-3 mt-lg-0">
-                  <Nav.Link as={Link} to="/" className="nav-custom-link" onClick={() => setNavExpanded(false)}>Anasayfa</Nav.Link>
-                  <Nav.Link as={Link} to="/urunler" className="nav-custom-link" onClick={() => setNavExpanded(false)}>Ürünler</Nav.Link>
-                  <Nav.Link as={Link} to="/iletisim" className="nav-custom-link" onClick={() => setNavExpanded(false)}>İletişim</Nav.Link>
-                </Nav>
-              </Navbar.Collapse>
-            </Container>
-          </Navbar>
-        </header>
+      <main className="flex-grow-1">
+        <Routes>
+          <Route path="/" element={<HomePage data={data} loading={loading} />} />
+          <Route path="/urunler" element={<ProductsPage data={data} loading={loading} />} />
+          <Route path="/iletisim" element={<ContactPage />} />
+        </Routes>
+      </main>
 
-        <main className="flex-grow-1">
-          <Routes>
-            <Route path="/" element={<HomePage data={data} loading={loading} />} />
-            <Route path="/urunler" element={<ProductsPage data={data} loading={loading} />} />
-            <Route path="/iletisim" element={<ContactPage />} />
-          </Routes>
-        </main>
-
-        {/* MODAL ARTIK APP İÇİNDE (HER YERDEN AÇILABİLİR) */}
-        <Modal show={showSearchModal} onHide={() => { setShowSearchModal(false); setModalSearchTerm(""); }} fullscreen className="search-modal-fullscreen">
-          <Modal.Body className="bg-light p-0">
-            <Container className="pt-5">
-              <div className="d-flex justify-content-end mb-4">
-                <Button variant="white" className="rounded-circle border shadow-sm" onClick={() => setShowSearchModal(false)}><FaTimes /></Button>
-              </div>
-              <Row className="justify-content-center">
-                <Col lg={8}>
-                  <div className="text-center mb-5">
-                    <h2 className="fw-bold text-dark"><FaSearch className="text-primary me-2" /> Ürün Arayın</h2>
-                  </div>
-                  <InputGroup className="bg-white rounded-4 shadow-sm p-2 mb-4 border">
-                    <Form.Control
-                      autoFocus
-                      placeholder="Örn: Salyangoz Fan, Aksiyel..."
-                      className="border-0 shadow-none fs-4 px-3"
-                      value={modalSearchTerm}
-                      onChange={(e) => setModalSearchTerm(e.target.value)}
-                    />
-                  </InputGroup>
-                  <div className="modal-results-container">
-                    {searchResults.map((p, i) => {
-                      const searchRawImage = p.IMAGE?.startsWith('http') ? p.IMAGE : `/image/${p.IMAGE}`;
-                      return (
-                        <div
-                          key={i}
-                          className="bg-white p-2 mb-2 rounded-4 border d-flex align-items-center gap-3 search-item-hover shadow-sm"
-                          style={{ cursor: 'pointer' }}
-                          onClick={() => {
-                            setShowSearchModal(false);
-                            navigate('/urunler', { state: { searchTerm: p.PRODUCT_NAME } });
-                          }}
-                        >
-                          <div className="bg-white rounded p-1 border d-flex align-items-center justify-content-center overflow-hidden" style={{ width: '65px', height: '65px' }}>
-                            {p.IMAGE ? (
-                              <img src={searchRawImage} alt={p.PRODUCT_NAME} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-                            ) : (
-                              <FaFan className="text-primary opacity-50" />
-                            )}
-                          </div>
-                          <div className="flex-grow-1">
-                            <div className="fw-bold text-dark mb-0" style={{ fontSize: '0.9rem' }}>{p.PRODUCT_NAME}</div>
-                            <div className="text-primary x-small fw-bold text-uppercase">{p.CATEGORY}</div>
-                          </div>
-                          <div className="text-end me-2">
-                            <div className="fw-bold text-dark" style={{ fontSize: '0.9rem' }}>{formatPrice(p.PRICE)}</div>
-                          </div>
-                          <FaChevronRight className="text-muted small me-2" />
+      <Modal show={showSearchModal} onHide={() => { setShowSearchModal(false); setModalSearchTerm(""); }} fullscreen className="search-modal-fullscreen">
+        <Modal.Body className="bg-light p-0">
+          <Container className="pt-5">
+            <div className="d-flex justify-content-end mb-4">
+              <Button variant="white" className="rounded-circle border shadow-sm" onClick={() => setShowSearchModal(false)}><FaTimes /></Button>
+            </div>
+            <Row className="justify-content-center">
+              <Col lg={8}>
+                <div className="text-center mb-5">
+                  <h2 className="fw-bold text-dark"><FaSearch className="text-primary me-2" /> Ürün Arayın</h2>
+                </div>
+                <InputGroup className="bg-white rounded-4 shadow-sm p-2 mb-4 border">
+                  <Form.Control
+                    autoFocus
+                    placeholder="Örn: Salyangoz Fan, Aksiyel..."
+                    className="border-0 shadow-none fs-4 px-3"
+                    value={modalSearchTerm}
+                    onChange={(e) => setModalSearchTerm(e.target.value)}
+                  />
+                </InputGroup>
+                <div className="modal-results-container">
+                  {searchResults.map((p, i) => {
+                    const searchRawImage = p.IMAGE?.startsWith('http') ? p.IMAGE : `/image/${p.IMAGE}`;
+                    return (
+                      <div
+                        key={i}
+                        className="bg-white p-2 mb-2 rounded-4 border d-flex align-items-center gap-3 search-item-hover shadow-sm"
+                        style={{ cursor: 'pointer' }}
+                        onClick={() => {
+                          setShowSearchModal(false);
+                          navigate('/urunler', { state: { searchTerm: p.PRODUCT_NAME } });
+                        }}
+                      >
+                        <div className="bg-white rounded p-1 border d-flex align-items-center justify-content-center overflow-hidden" style={{ width: '65px', height: '65px' }}>
+                          {p.IMAGE ? (
+                            <img src={searchRawImage} alt={p.PRODUCT_NAME} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                          ) : (
+                            <FaFan className="text-primary opacity-50" />
+                          )}
                         </div>
-                      );
-                    })}
-                    {modalSearchTerm.length >= 2 && searchResults.length === 0 && (
-                      <div className="text-center py-5 text-muted">Sonuç bulunamadı.</div>
-                    )}
-                  </div>
-                </Col>
-              </Row>
-            </Container>
-          </Modal.Body>
-        </Modal>
-
-        <footer className="bg-white border-top pt-5 pb-3">
-          <Container>
-            <Row className="gy-4 justify-content-lg-between text-center text-md-start">
-              <Col lg={3}>
-                <section>
-                  <h4 className="fw-bold mb-3"><span className="text-primary">DURU</span>FANMARKET</h4>
-                  <p className="text-muted small">Endüstriyel havalandırma çözümlerinde güvenilir ortağınız. En kaliteli fan sistemlerini en uygun fiyatlarla sunuyoruz.</p>
-                </section>
-              </Col>
-              <Col lg={4} className="px-lg-5">
-                <section className="d-flex flex-column align-items-center align-items-md-start">
-                  <h2 className="fw-bold mb-3 text-uppercase border-bottom border-primary border-2 pb-1 d-inline-block w-auto fs-6">Çalışma Saatleri</h2>
-                  <div className="small text-muted mt-2 w-100">
-                    <div className="d-flex justify-content-center justify-content-md-start gap-3 mb-2 border-bottom pb-1">
-                      <span className="text-nowrap">Pzt - Cmt:</span><strong className="text-dark">09:00 - 19:00</strong>
-                    </div>
-                    <div className="d-flex justify-content-center justify-content-md-start gap-3">
-                      <span className="text-nowrap">Pazar:</span><strong className="text-danger">KAPALI</strong>
-                    </div>
-                    <p className="mt-3 x-small italic text-muted text-center text-md-start">
-                      <FaClock className="me-1 text-primary" aria-hidden="true" /> Mesai saatleri dışındaki talepleriniz için WhatsApp üzerinden mesaj bırakabilirsiniz.
-                    </p>
-                  </div>
-                </section>
-              </Col>
-              <Col lg={3}>
-                <section className="d-flex flex-column align-items-center align-items-md-start">
-                  <h2 className="fw-bold mb-3 text-uppercase border-bottom border-primary border-2 pb-1 d-inline-block w-auto fs-6">İletişim</h2>
-                  <address className="small text-muted mt-2 font-normal">
-                    <p className="mb-2 text-nowrap"><FaMapMarkerAlt className="text-primary me-2" aria-hidden="true" /> İstanbul, Türkiye</p>
-                    <p className="mb-2 text-nowrap"><FaPhoneAlt className="text-primary me-2" aria-hidden="true" /> +90 537 393 47 67</p>
-                    <p className="mb-2 text-nowrap"><FaEnvelope className="text-primary me-2" aria-hidden="true" /> info@durufanmarket.com</p>
-                  </address>
-                </section>
+                        <div className="flex-grow-1">
+                          <div className="fw-bold text-dark mb-0" style={{ fontSize: '0.9rem' }}>{p.PRODUCT_NAME}</div>
+                          <div className="text-primary x-small fw-bold text-uppercase">{p.CATEGORY}</div>
+                        </div>
+                        <div className="text-end me-2">
+                          <div className="fw-bold text-dark" style={{ fontSize: '0.9rem' }}>{formatPrice(p.PRICE)}</div>
+                        </div>
+                        <FaChevronRight className="text-muted small me-2" />
+                      </div>
+                    );
+                  })}
+                  {modalSearchTerm.length >= 2 && searchResults.length === 0 && (
+                    <div className="text-center py-5 text-muted">Sonuç bulunamadı.</div>
+                  )}
+                </div>
               </Col>
             </Row>
-            <hr className="my-4 opacity-50" />
-            <div className="text-center small text-muted">© {new Date().getFullYear()} Duru Fanmarket. Tüm hakları saklıdır.</div>
           </Container>
-        </footer>
-        <aside className="fixed-contact-buttons">
-          <a href="tel:+905373934767" className="contact-btn phone" aria-label="Telefonla Arayın"><FaPhoneAlt size={16} /></a>
-          <a href="https://wa.me/905373934767" target="_blank" rel="noopener noreferrer" className="contact-btn whatsapp" aria-label="WhatsApp Destek Hattı"><FaWhatsapp size={20} /></a>
-        </aside>
-        <button className={`back-to-top-btn ${showBackToTop ? 'show' : ''}`} onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} aria-label="Yukarı Çık"><FaArrowUp size={14} /></button>
-        <style>{`
+        </Modal.Body>
+      </Modal>
+
+      <footer className="bg-white border-top pt-5 pb-3">
+        <Container>
+          <Row className="gy-4 justify-content-lg-between text-center text-md-start">
+            <Col lg={3}>
+              <section>
+                <h4 className="fw-bold mb-3"><span className="text-primary">DURU</span>FANMARKET</h4>
+                <p className="text-muted small">Endüstriyel havalandırma çözümlerinde güvenilir ortağınız. En kaliteli fan sistemlerini en uygun fiyatlarla sunuyoruz.</p>
+              </section>
+            </Col>
+            <Col lg={4} className="px-lg-5">
+              <section className="d-flex flex-column align-items-center align-items-md-start">
+                <h2 className="fw-bold mb-3 text-uppercase border-bottom border-primary border-2 pb-1 d-inline-block w-auto fs-6">Çalışma Saatleri</h2>
+                <div className="small text-muted mt-2 w-100">
+                  <div className="d-flex justify-content-center justify-content-md-start gap-3 mb-2 border-bottom pb-1">
+                    <span className="text-nowrap">Pzt - Cmt:</span><strong className="text-dark">09:00 - 19:00</strong>
+                  </div>
+                  <div className="d-flex justify-content-center justify-content-md-start gap-3">
+                    <span className="text-nowrap">Pazar:</span><strong className="text-danger">KAPALI</strong>
+                  </div>
+                  <p className="mt-3 x-small italic text-muted text-center text-md-start">
+                    <FaClock className="me-1 text-primary" aria-hidden="true" /> Mesai saatleri dışındaki talepleriniz için WhatsApp üzerinden mesaj bırakabilirsiniz.
+                  </p>
+                </div>
+              </section>
+            </Col>
+            <Col lg={3}>
+              <section className="d-flex flex-column align-items-center align-items-md-start">
+                <h2 className="fw-bold mb-3 text-uppercase border-bottom border-primary border-2 pb-1 d-inline-block w-auto fs-6">İletişim</h2>
+                <address className="small text-muted mt-2 font-normal">
+                  <p className="mb-2 text-nowrap"><FaMapMarkerAlt className="text-primary me-2" aria-hidden="true" /> İstanbul, Türkiye</p>
+                  <p className="mb-2 text-nowrap"><FaPhoneAlt className="text-primary me-2" aria-hidden="true" /> +90 537 393 47 67</p>
+                  <p className="mb-2 text-nowrap"><FaEnvelope className="text-primary me-2" aria-hidden="true" /> info@durufanmarket.com</p>
+                </address>
+              </section>
+            </Col>
+          </Row>
+          <hr className="my-4 opacity-50" />
+          <div className="text-center small text-muted">© {new Date().getFullYear()} Duru Fanmarket. Tüm hakları saklıdır.</div>
+        </Container>
+      </footer>
+      <aside className="fixed-contact-buttons">
+        <a href="tel:+905373934767" className="contact-btn phone" aria-label="Telefonla Arayın"><FaPhoneAlt size={16} /></a>
+        <a href="https://wa.me/905373934767" target="_blank" rel="noopener noreferrer" className="contact-btn whatsapp" aria-label="WhatsApp Destek Hattı"><FaWhatsapp size={20} /></a>
+      </aside>
+      <button className={`back-to-top-btn ${showBackToTop ? 'show' : ''}`} onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} aria-label="Yukarı Çık"><FaArrowUp size={14} /></button>
+      <style>{`
           /* X EKSENİNDE KAYMAYI ENGELLEYEN KRİTİK KOD */
           html, body { overflow-x: hidden; width: 100%; position: relative; }
           .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -781,8 +782,6 @@ function App() {
           .search-trigger-box:hover { transform: scale(1.02); transition: 0.3s; background-color: #f8f9fa !important; }
           .search-item-hover:hover { background-color: #f0f7ff !important; border-color: #0d6efd !important; transition: 0.2s; }
           .modal-results-container { max-height: 450px; overflow-y: auto; }
-          
-          /* MOBİL ÜRÜN LİSTESİ İKİLİ GÖRÜNÜM VE YAZI KÜÇÜLTME */
           @media (max-width: 576px) {
             .container { padding-left: 8px !important; padding-right: 8px !important; }
             .row.gx-2 { margin-left: -4px !important; margin-right: -4px !important; }
@@ -800,7 +799,7 @@ function App() {
             .col-6 .product-card div[style*="height: 180px"] { height: 130px !important; }
           }
         `}</style>
-      </div>
+    </div>
   );
 }
 
