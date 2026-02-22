@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
-import { BrowserRouter as Router, Routes, Route, Link, useNavigate, useLocation } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Link, useNavigate, useLocation ,useParams} from "react-router-dom";
 import { Navbar, Container, Nav, Row, Col, Card, Button, Badge, Form, InputGroup, Carousel, Modal } from "react-bootstrap";
 import { FaSearch, FaFan, FaChevronLeft, FaChevronRight, FaWind, FaWhatsapp, FaPhoneAlt, FaArrowUp, FaTruck, FaShieldAlt, FaHeadset, FaTools, FaMapMarkerAlt, FaEnvelope, FaClock, FaIndustry, FaUtensils, FaBuilding, FaStore, FaPaperPlane, FaTimes } from "react-icons/fa";
 import Papa from "papaparse";
@@ -26,6 +26,24 @@ const SEO = ({ title, description, keywords, schema }) => {
     }
   }, [title, description, keywords, schema]);
   return null;
+};
+
+
+const createSlug = (name) => {
+  if (!name) return "";
+  return name
+    .toString()
+    .trim()
+    .toLowerCase()
+    .replace(/[ğĞ]/g, 'g')
+    .replace(/[üÜ]/g, 'u')
+    .replace(/[şŞ]/g, 's')
+    .replace(/[ıİ]/g, 'i')
+    .replace(/[öÖ]/g, 'o')
+    .replace(/[çÇ]/g, 'c')
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')         
+    .replace(/-+/g, '-');         
 };
 
 const formatPrice = (val) => {
@@ -136,18 +154,37 @@ const CategoryBar = ({ categories }) => {
   );
 };
 
+
 const ProductCard = ({ product }) => {
+  const navigate = useNavigate(); 
+  
   const rawImage = product.IMAGE?.startsWith('http') ? product.IMAGE : `/image/${product.IMAGE}`;
   const imageSrc = rawImage.includes("cloudinary.com")
     ? rawImage.replace("/upload/", "/upload/f_auto,q_auto,w_500/")
     : rawImage;
+    
   const displayM3H = (product.M3H && product.M3H !== "0" && product.M3H !== 0) ? `${product.M3H} m³/h` : "-";
   const displayStrength = (product.STRENGTH && product.STRENGTH !== "0" && product.STRENGTH !== 0) ? `${product.STRENGTH} Kw` : "-";
 
   const hasDiscount = product.DISCOUNT_PRICE && product.DISCOUNT_PRICE !== "0" && product.DISCOUNT_PRICE !== "";
 
+
+  const productSlug = createSlug(product.PRODUCT_NAME);
+
+  
+  const handleWhatsApp = (e) => {
+    e.stopPropagation();
+    const message = `Merhaba, ${product.PRODUCT_NAME} ${hasDiscount ? `(İndirimli Fiyat: ${formatPrice(product.DISCOUNT_PRICE)})` : ''} ürünü hakkında bilgi alabilir miyim?`;
+    window.open(`https://wa.me/905373934767?text=${encodeURIComponent(message)}`, '_blank');
+  };
+
   return (
-    <article className="h-100" aria-labelledby={`product-title-${product.PRODUCT_NAME.replace(/\s+/g, '-').toLowerCase()}`}>
+    <article 
+      className="h-100" 
+      aria-labelledby={`product-title-${product.PRODUCT_NAME.replace(/\s+/g, '-').toLowerCase()}`}
+      onClick={() => navigate(`/urun/${productSlug}`)} // Kartın tamamı detaya gider
+      style={{ cursor: 'pointer' }}
+    >
       <Card className="h-100 border rounded-4 overflow-hidden product-card shadow-sm">
         <div className="bg-white p-4 d-flex align-items-center justify-content-center position-relative" style={{ height: "200px" }}>
           {hasDiscount && (
@@ -198,8 +235,7 @@ const ProductCard = ({ product }) => {
             <Button
               variant="outline-primary"
               className="w-100 mt-2 py-2 fw-bold rounded-3"
-              href={`https://wa.me/905373934767?text=${encodeURIComponent(`Merhaba, ${product.PRODUCT_NAME} ${hasDiscount ? `(İndirimli Fiyat: ${formatPrice(product.DISCOUNT_PRICE)})` : ''} ürünü hakkında bilgi alabilir miyim?`)}`}
-              target="_blank"
+              onClick={handleWhatsApp} // Sayfayı değiştirmeden WP açar
               aria-label={`${product.PRODUCT_NAME} için WhatsApp'tan bilgi alın`}
             >
               BİLGİ AL
@@ -210,7 +246,6 @@ const ProductCard = ({ product }) => {
     </article>
   );
 };
-
 const useProducts = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -635,6 +670,124 @@ const ContactPage = () => {
   );
 };
 
+
+const ProductDetailPage = ({ data }) => {
+  const { productName } = useParams();
+  const navigate = useNavigate();
+
+  const product = useMemo(() => {
+    if (!data || data.length === 0) return null;
+    return data.find(p => createSlug(p.PRODUCT_NAME) === productName);
+  }, [data, productName]);
+
+  const relatedProducts = useMemo(() => {
+    if (!product || !data) return [];
+    return data
+      .filter(p => p.CATEGORY === product.CATEGORY && p.PRODUCT_NAME !== product.PRODUCT_NAME)
+      .slice(0, 4);
+  }, [product, data]);
+
+  useEffect(() => { 
+    if (product) {
+      document.title = `${product.PRODUCT_NAME} | Duru Fanmarket`;
+      window.scrollTo(0, 0); 
+    }
+  }, [product]);
+
+  if (!data || data.length === 0) return <Container className="py-5 text-center mt-5">Yükleniyor...</Container>;
+  if (!product) return <Container className="py-5 text-center mt-5"><h3>Ürün bulunamadı.</h3><Button onClick={() => navigate('/urunler')}>Geri Dön</Button></Container>;
+
+  const rawImage = product.IMAGE?.startsWith('http') ? product.IMAGE : `/image/${product.IMAGE}`;
+  const hasDiscount = product.DISCOUNT_PRICE && product.DISCOUNT_PRICE !== "0" && product.DISCOUNT_PRICE !== "";
+  
+  // Fiyat Kontrolü
+  const isAskForPrice = formatPrice(product.PRICE) === "Fiyat Sorunuz";
+
+  return (
+    <Container className="py-4 py-lg-5">
+      <Button variant="link" className="text-dark fw-bold mb-3 p-0 text-decoration-none d-flex align-items-center" onClick={() => navigate(-1)}>
+        <FaChevronLeft className="me-2" /> GERİ DÖN
+      </Button>
+      
+      <Row className="bg-white rounded-4 shadow-sm border overflow-hidden g-0 mb-5 align-items-center">
+        {/* SOL: ÜRÜN GÖRSELİ (Daha Küçük ve Kibar) */}
+        <Col lg={5} className="p-4 d-flex align-items-center justify-content-center bg-white">
+          <div style={{ width: "100%", height: "300px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <img 
+              src={rawImage} 
+              alt={product.PRODUCT_NAME} 
+              className="img-fluid transition-03" 
+              style={{ maxHeight: "100%", maxWidth: "85%", objectFit: "contain" }} 
+            />
+          </div>
+        </Col>
+        
+        {/* SAĞ: DETAYLAR */}
+        <Col lg={7} className="p-4 p-lg-5">
+          <Badge bg="primary" className="mb-2 rounded-pill px-3 py-2" style={{ fontSize: '0.65rem' }}>{product.CATEGORY}</Badge>
+          
+          <h1 className="fw-bold mb-3 h4 text-dark" style={{ lineHeight: "1.3" }}>{product.PRODUCT_NAME}</h1>
+          
+          {/* FİYAT ALANI (Mantık Hatası Giderildi) */}
+          <div className="mb-4">
+             {isAskForPrice ? (
+               <div className="h4 fw-bold text-muted">Fiyat Sorunuz</div>
+             ) : (
+               <div className="d-flex align-items-baseline gap-2">
+                 <span className="text-primary h3 fw-bold mb-0">
+                   {hasDiscount ? formatPrice(product.DISCOUNT_PRICE) : formatPrice(product.PRICE)}
+                 </span>
+                 <span className="text-muted small">+KDV</span>
+               </div>
+             )}
+             {hasDiscount && !isAskForPrice && (
+               <div className="text-muted text-decoration-line-through small">{formatPrice(product.PRICE)}</div>
+             )}
+          </div>
+
+          {/* TEKNİK ÖZELLİKLER */}
+          <div className="d-flex gap-2 mb-4">
+            <div className="bg-light rounded-3 p-2 flex-fill border text-center">
+              <div className="text-muted" style={{ fontSize: '0.65rem' }}>Hava Debisi</div>
+              <div className="fw-bold" style={{ fontSize: '0.9rem' }}>{(product.M3H && product.M3H !== "0") ? `${product.M3H} m³/h` : "-"}</div>
+            </div>
+            <div className="bg-light rounded-3 p-2 flex-fill border text-center">
+              <div className="text-muted" style={{ fontSize: '0.65rem' }}>Motor Gücü</div>
+              <div className="fw-bold" style={{ fontSize: '0.9rem' }}>{(product.STRENGTH && product.STRENGTH !== "0") ? `${product.STRENGTH} Kw` : "-"}</div>
+            </div>
+          </div>
+
+          <Button 
+            variant="primary" 
+            size="sm" 
+            className="w-100 rounded-pill py-3 fw-bold d-flex align-items-center justify-content-center gap-2 shadow-sm border-0"
+            href={`https://wa.me/905373934767?text=${encodeURIComponent(`Merhaba, ${product.PRODUCT_NAME} ürünü hakkında fiyat ve detaylı bilgi alabilir miyim?`)}`}
+            target="_blank"
+          >
+            <FaWhatsapp size={20} /> WHATSAPP İLE BİLGİ AL
+          </Button>
+        </Col>
+      </Row>
+
+      {/* Benzer Ürünler */}
+      {relatedProducts.length > 0 && (
+        <div className="mt-5 pt-4 border-top">
+          <h5 className="fw-bold border-start border-4 border-primary ps-3 mb-0 fs-4 mb-4">İlginizi Çekebilecek Diğer Ürünler</h5>
+          <Row className="gx-2 gy-3">
+            {relatedProducts.map((item, idx) => (
+              <Col xs={6} md={3} key={idx}>
+                <ProductCard product={item} />
+              </Col>
+            ))}
+          </Row>
+        </div>
+      )}
+    </Container>
+  );
+};
+
+
+
 function App() {
   const { data, loading } = useProducts();
   const [showBackToTop, setShowBackToTop] = useState(false);
@@ -698,7 +851,7 @@ function App() {
                     style={{ cursor: 'pointer', transition: '0.3s' }}
                   >
                     <FaSearch className="text-muted me-2" />
-                    <span className="text-muted small">Ürün ara...</span>
+                    <span className="text-muted small">Ürün arayın..</span>
                   </div>
                 </div>
               )}
@@ -717,6 +870,7 @@ function App() {
           <Route path="/" element={<HomePage data={data} loading={loading} />} />
           <Route path="/urunler" element={<ProductsPage data={data} loading={loading} />} />
           <Route path="/iletisim" element={<ContactPage />} />
+          <Route path="/urun/:productName" element={<ProductDetailPage data={data} />} />
         </Routes>
       </main>
 
