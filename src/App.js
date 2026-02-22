@@ -804,7 +804,7 @@ const ProductDetailPage = ({ data }) => {
       {/* Benzer Ürünler */}
       {relatedProducts.length > 0 && (
         <div className="mt-5 pt-4 border-top">
-          <h5 className="fw-bold border-start border-4 border-primary ps-3 mb-0 fs-4 mb-4">İlginizi Çekebilecek Diğer Ürünler</h5>
+          <h5 className="fw-bold border-start border-4 border-primary ps-3 mb-0 fs-4 mb-4">Benzer Ürünler</h5>
           <Row className="gx-2 gy-3">
             {relatedProducts.map((item, idx) => (
               <Col xs={6} md={3} key={idx}>
