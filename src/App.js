@@ -717,7 +717,7 @@ const ProductDetailPage = ({ data }) => {
               src={rawImage}
               alt={product.PRODUCT_NAME}
               className="img-fluid transition-03"
-              style={{ maxHeight: "100%", maxWidth: "85%", objectFit: "contain" }}
+              style={{ maxHeight: "100%", maxWidth: "50%", objectFit: "contain" }}
             />
           </div>
         </Col>
