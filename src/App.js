@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
-import { BrowserRouter as Router, Routes, Route, Link, useNavigate, useLocation ,useParams} from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Link, useNavigate, useLocation, useParams } from "react-router-dom";
 import { Navbar, Container, Nav, Row, Col, Card, Button, Badge, Form, InputGroup, Carousel, Modal } from "react-bootstrap";
-import { FaSearch, FaFan, FaChevronLeft, FaChevronRight, FaWind, FaWhatsapp, FaPhoneAlt, FaArrowUp, FaTruck, FaShieldAlt, FaHeadset, FaTools, FaMapMarkerAlt, FaEnvelope, FaClock, FaIndustry, FaUtensils, FaBuilding, FaStore, FaPaperPlane, FaTimes } from "react-icons/fa";
+import { FaSearch, FaFan, FaChevronLeft, FaChevronRight, FaWind, FaWhatsapp, FaPhoneAlt, FaArrowUp, FaTruck, FaShieldAlt, FaHeadset, FaTools, FaMapMarkerAlt, FaEnvelope, FaClock, FaIndustry, FaUtensils, FaBuilding, FaStore, FaPaperPlane, FaTimes , FaCheckCircle } from "react-icons/fa";
 import Papa from "papaparse";
 import "bootstrap/dist/css/bootstrap.min.css";
 
@@ -42,8 +42,8 @@ const createSlug = (name) => {
     .replace(/[öÖ]/g, 'o')
     .replace(/[çÇ]/g, 'c')
     .replace(/[^a-z0-9\s-]/g, '')
-    .replace(/\s+/g, '-')         
-    .replace(/-+/g, '-');         
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-');
 };
 
 const formatPrice = (val) => {
@@ -68,7 +68,7 @@ const CategoryBar = ({ categories }) => {
       const { scrollLeft } = scrollRef.current;
       const scrollAmount = 300;
       const scrollTo = direction === 'left' ? scrollLeft - scrollAmount : scrollLeft + scrollAmount;
-      
+
       scrollRef.current.scrollTo({
         left: scrollTo,
         behavior: 'smooth'
@@ -79,43 +79,43 @@ const CategoryBar = ({ categories }) => {
   return (
     <nav className="category-scroll-wrapper py-3 border-bottom bg-white position-relative">
       <Container className="position-relative category-nav-container">
-        
-        <Button 
-          variant="white" 
+
+        <Button
+          variant="white"
           className="d-none d-lg-flex position-absolute start-0 top-50 translate-middle-y z-3 shadow-sm rounded-circle border p-1 ms-n2 scroll-arrow-btn"
           onClick={() => scroll('left')}
           style={{ width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'white' }}
         >
           <FaChevronLeft size={12} className="text-primary" />
         </Button>
-        <div 
+        <div
           ref={scrollRef}
           className="d-flex overflow-auto no-scrollbar gap-2 py-1 align-items-center"
           style={{ scrollBehavior: 'smooth' }}
         >
-          <Button 
-            variant="primary" 
-            size="sm" 
-            className="rounded-pill text-nowrap px-4 fw-bold shadow-sm" 
+          <Button
+            variant="primary"
+            size="sm"
+            className="rounded-pill text-nowrap px-4 fw-bold shadow-sm"
             onClick={() => navigate('/urunler', { state: { category: 'Hepsi' } })}
           >
             Tüm Ürünler
           </Button>
-          
+
           {categories.map((cat, i) => (
-            <Button 
-              key={i} 
-              variant="white" 
-              size="sm" 
-              className="rounded-pill text-nowrap px-3 border border-light-subtle fw-semibold bg-white hover-bg-light transition-03" 
+            <Button
+              key={i}
+              variant="white"
+              size="sm"
+              className="rounded-pill text-nowrap px-3 border border-light-subtle fw-semibold bg-white hover-bg-light transition-03"
               onClick={() => navigate('/urunler', { state: { category: cat } })}
             >
               {cat}
             </Button>
           ))}
         </div>
-        <Button 
-          variant="white" 
+        <Button
+          variant="white"
           className="d-none d-lg-flex position-absolute end-0 top-50 translate-middle-y z-3 shadow-sm rounded-circle border p-1 me-n2 scroll-arrow-btn"
           onClick={() => scroll('right')}
           style={{ width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'white' }}
@@ -156,13 +156,13 @@ const CategoryBar = ({ categories }) => {
 
 
 const ProductCard = ({ product }) => {
-  const navigate = useNavigate(); 
-  
+  const navigate = useNavigate();
+
   const rawImage = product.IMAGE?.startsWith('http') ? product.IMAGE : `/image/${product.IMAGE}`;
   const imageSrc = rawImage.includes("cloudinary.com")
     ? rawImage.replace("/upload/", "/upload/f_auto,q_auto,w_500/")
     : rawImage;
-    
+
   const displayM3H = (product.M3H && product.M3H !== "0" && product.M3H !== 0) ? `${product.M3H} m³/h` : "-";
   const displayStrength = (product.STRENGTH && product.STRENGTH !== "0" && product.STRENGTH !== 0) ? `${product.STRENGTH} Kw` : "-";
 
@@ -171,7 +171,7 @@ const ProductCard = ({ product }) => {
 
   const productSlug = createSlug(product.PRODUCT_NAME);
 
-  
+
   const handleWhatsApp = (e) => {
     e.stopPropagation();
     const message = `Merhaba, ${product.PRODUCT_NAME} ${hasDiscount ? `(İndirimli Fiyat: ${formatPrice(product.DISCOUNT_PRICE)})` : ''} ürünü hakkında bilgi alabilir miyim?`;
@@ -179,8 +179,8 @@ const ProductCard = ({ product }) => {
   };
 
   return (
-    <article 
-      className="h-100" 
+    <article
+      className="h-100"
       aria-labelledby={`product-title-${product.PRODUCT_NAME.replace(/\s+/g, '-').toLowerCase()}`}
       onClick={() => navigate(`/urun/${productSlug}`)} // Kartın tamamı detaya gider
       style={{ cursor: 'pointer' }}
@@ -483,7 +483,7 @@ const ProductsPage = ({ data, loading }) => {
     }
     if (location.state?.searchTerm) {
       setSearchTerm(location.state.searchTerm);
-      setSelectedCategory("Hepsi"); 
+      setSelectedCategory("Hepsi");
     }
     setCurrentPage(1);
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -687,10 +687,10 @@ const ProductDetailPage = ({ data }) => {
       .slice(0, 4);
   }, [product, data]);
 
-  useEffect(() => { 
+  useEffect(() => {
     if (product) {
       document.title = `${product.PRODUCT_NAME} | Duru Fanmarket`;
-      window.scrollTo(0, 0); 
+      window.scrollTo(0, 0);
     }
   }, [product]);
 
@@ -699,7 +699,7 @@ const ProductDetailPage = ({ data }) => {
 
   const rawImage = product.IMAGE?.startsWith('http') ? product.IMAGE : `/image/${product.IMAGE}`;
   const hasDiscount = product.DISCOUNT_PRICE && product.DISCOUNT_PRICE !== "0" && product.DISCOUNT_PRICE !== "";
-  
+
   // Fiyat Kontrolü
   const isAskForPrice = formatPrice(product.PRICE) === "Fiyat Sorunuz";
 
@@ -708,41 +708,41 @@ const ProductDetailPage = ({ data }) => {
       <Button variant="link" className="text-dark fw-bold mb-3 p-0 text-decoration-none d-flex align-items-center" onClick={() => navigate(-1)}>
         <FaChevronLeft className="me-2" /> GERİ DÖN
       </Button>
-      
+
       <Row className="bg-white rounded-4 shadow-sm border overflow-hidden g-0 mb-5 align-items-center">
-        {/* SOL: ÜRÜN GÖRSELİ (Daha Küçük ve Kibar) */}
+        {/* SOL: ÜRÜN GÖRSELİ  */}
         <Col lg={5} className="p-4 d-flex align-items-center justify-content-center bg-white">
           <div style={{ width: "100%", height: "300px", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <img 
-              src={rawImage} 
-              alt={product.PRODUCT_NAME} 
-              className="img-fluid transition-03" 
-              style={{ maxHeight: "100%", maxWidth: "85%", objectFit: "contain" }} 
+            <img
+              src={rawImage}
+              alt={product.PRODUCT_NAME}
+              className="img-fluid transition-03"
+              style={{ maxHeight: "100%", maxWidth: "85%", objectFit: "contain" }}
             />
           </div>
         </Col>
-        
+
         {/* SAĞ: DETAYLAR */}
         <Col lg={7} className="p-4 p-lg-5">
           <Badge bg="primary" className="mb-2 rounded-pill px-3 py-2" style={{ fontSize: '0.65rem' }}>{product.CATEGORY}</Badge>
-          
+
           <h1 className="fw-bold mb-3 h4 text-dark" style={{ lineHeight: "1.3" }}>{product.PRODUCT_NAME}</h1>
-          
-          {/* FİYAT ALANI (Mantık Hatası Giderildi) */}
+
+          {/* FİYAT ALANI */}
           <div className="mb-4">
-             {isAskForPrice ? (
-               <div className="h4 fw-bold text-muted">Fiyat Sorunuz</div>
-             ) : (
-               <div className="d-flex align-items-baseline gap-2">
-                 <span className="text-primary h3 fw-bold mb-0">
-                   {hasDiscount ? formatPrice(product.DISCOUNT_PRICE) : formatPrice(product.PRICE)}
-                 </span>
-                 <span className="text-muted small">+KDV</span>
-               </div>
-             )}
-             {hasDiscount && !isAskForPrice && (
-               <div className="text-muted text-decoration-line-through small">{formatPrice(product.PRICE)}</div>
-             )}
+            {isAskForPrice ? (
+              <div className="h4 fw-bold text-muted">Fiyat Sorunuz</div>
+            ) : (
+              <div className="d-flex align-items-baseline gap-2">
+                <span className="text-primary h3 fw-bold mb-0">
+                  {hasDiscount ? formatPrice(product.DISCOUNT_PRICE) : formatPrice(product.PRICE)}
+                </span>
+                <span className="text-muted small">+KDV</span>
+              </div>
+            )}
+            {hasDiscount && !isAskForPrice && (
+              <div className="text-muted text-decoration-line-through small">{formatPrice(product.PRICE)}</div>
+            )}
           </div>
 
           {/* TEKNİK ÖZELLİKLER */}
@@ -757,9 +757,41 @@ const ProductDetailPage = ({ data }) => {
             </div>
           </div>
 
-          <Button 
-            variant="primary" 
-            size="sm" 
+          {product.DESCRIPTION && (
+  <div className="mt-4 mb-5">
+    <div className="mb-3 d-flex align-items-center">
+      <span 
+        className="text-uppercase fw-black tracking-wider text-dark" 
+        style={{ fontSize: '0.75rem', letterSpacing: '2px', fontWeight: '900' }}
+      >
+        Ürün Detayı
+      </span>
+      <div className="flex-grow-1 ms-3 border-top opacity-25"></div>
+    </div>
+    
+    <div className="product-description-text">
+      <p 
+        className="text-secondary fw-normal" 
+        style={{ 
+          lineHeight: '1.8', 
+          fontSize: '0.92rem', 
+          textAlign: 'justify',
+          fontFamily: '"Inter", sans-serif',
+          opacity: '0.85'
+        }}
+      >
+        {product.DESCRIPTION}
+      </p>
+    </div>
+    <div className="d-flex gap-4 mt-3 opacity-50 small fw-medium">
+      <div className="d-flex align-items-center"><FaCheckCircle className="text-primary me-2" size={12}/> Kaliteli Ürün</div>
+      <div className="d-flex align-items-center"><FaCheckCircle className="text-primary me-2" size={12}/> Yüksek Verim</div>
+    </div>
+  </div>
+)}
+          <Button
+            variant="primary"
+            size="sm"
             className="w-100 rounded-pill py-3 fw-bold d-flex align-items-center justify-content-center gap-2 shadow-sm border-0"
             href={`https://wa.me/905373934767?text=${encodeURIComponent(`Merhaba, ${product.PRODUCT_NAME} ürünü hakkında fiyat ve detaylı bilgi alabilir miyim?`)}`}
             target="_blank"
