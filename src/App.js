@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Link, useNavigate, useLocation,
 import { Navbar, Container, Nav, Row, Col, Card, Button, Badge, Form, InputGroup, Carousel, Modal } from "react-bootstrap";
 import { FaSearch, FaFan, FaChevronLeft, FaChevronRight, FaWind, FaWhatsapp, FaPhoneAlt, FaArrowUp, FaTruck, FaShieldAlt, FaHeadset, FaTools, FaMapMarkerAlt, FaEnvelope, FaClock, FaIndustry, FaUtensils, FaBuilding, FaStore, FaPaperPlane, FaTimes , FaCheckCircle } from "react-icons/fa";
 import Papa from "papaparse";
+import './index.css'
 import "bootstrap/dist/css/bootstrap.min.css";
 
 // --- SEO---
@@ -1013,7 +1014,6 @@ function App() {
       </aside>
       <button className={`back-to-top-btn ${showBackToTop ? 'show' : ''}`} onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} aria-label="Yukarı Çık"><FaArrowUp size={14} /></button>
       <style>{`
-          /* X EKSENİNDE KAYMAYI ENGELLEYEN KRİTİK KOD */
           html, body { overflow-x: hidden; width: 100%; position: relative; }
           .no-scrollbar::-webkit-scrollbar { display: none; }
           .nav-custom-link { font-weight: 700; color: #333 !important; padding: 8px 20px !important; position: relative; }
